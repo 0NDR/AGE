@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="AGE" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/AGE" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/AGE" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add directory="../Frameworks/Libs/mingw/SDL2/include/SDL2" />
+			<Add directory="../Frameworks/Libs/mingw/glm" />
+			<Add directory="../Frameworks/Libs/mingw/GLEW/include" />
+			<Add directory="../bulletbuild/src" />
+			<Add directory="../Frameworks/Libs/mingw/Assimp/include" />
+			<Add directory="../Frameworks/Libs/mingw/OpenAL/include" />
+		</Compiler>
+		<Linker>
+			<Add option="-lmingw32" />
+			<Add option="-lSDL2main" />
+			<Add option="-lSDL2" />
+			<Add option="-lSDL2_ttf" />
+			<Add option="-lSDL2_image" />
+			<Add option="-lglu32" />
+			<Add option="-lopengl32" />
+			<Add option="-lassimp" />
+			<Add option="-lBulletDynamics" />
+			<Add option="-lBulletCollision" />
+			<Add option="-lLinearMath" />
+			<Add library="..\Frameworks\Libs\mingw\OpenAL\libs\Win32\OpenAL32.lib" />
+			<Add directory="../Frameworks/Libs/mingw/SDL2/lib" />
+			<Add directory="../Frameworks/Libs/mingw/GLEW/lib" />
+			<Add directory="../Frameworks/Libs/mingw/OpenAL/libs/Win32/EFX-Util_MT" />
+			<Add directory="../bulletbuild/lib" />
+			<Add directory="../Frameworks/Libs/mingw/Assimp/lib/x86" />
+		</Linker>
+		<Unit filename="CODE/AudioController.cpp" />
+		<Unit filename="CODE/AudioController.h" />
+		<Unit filename="CODE/Billboard.cpp" />
+		<Unit filename="CODE/Billboard.h" />
+		<Unit filename="CODE/CombinedController.cpp" />
+		<Unit filename="CODE/CombinedController.h" />
+		<Unit filename="CODE/Font.cpp" />
+		<Unit filename="CODE/Font.h" />
+		<Unit filename="CODE/GLOBAL.cpp" />
+		<Unit filename="CODE/GLOBAL.h" />
+		<Unit filename="CODE/GameShader.cpp" />
+		<Unit filename="CODE/GameShader.h" />
+		<Unit filename="CODE/InstanceFactory.cpp" />
+		<Unit filename="CODE/InstanceFactory.h" />
+		<Unit filename="CODE/KeyController.cpp" />
+		<Unit filename="CODE/KeyController.h" />
+		<Unit filename="CODE/Light.cpp" />
+		<Unit filename="CODE/Light.h" />
+		<Unit filename="CODE/LuaBridge/LuaBridge.h" />
+		<Unit filename="CODE/LuaBridge/RefCountedObject.h" />
+		<Unit filename="CODE/LuaBridge/RefCountedPtr.h" />
+		<Unit filename="CODE/LuaBridge/detail/CFunctions.h" />
+		<Unit filename="CODE/LuaBridge/detail/ClassInfo.h" />
+		<Unit filename="CODE/LuaBridge/detail/Constructor.h" />
+		<Unit filename="CODE/LuaBridge/detail/FuncTraits.h" />
+		<Unit filename="CODE/LuaBridge/detail/Iterator.h" />
+		<Unit filename="CODE/LuaBridge/detail/LuaException.h" />
+		<Unit filename="CODE/LuaBridge/detail/LuaHelpers.h" />
+		<Unit filename="CODE/LuaBridge/detail/LuaRef.h" />
+		<Unit filename="CODE/LuaBridge/detail/Namespace.h" />
+		<Unit filename="CODE/LuaBridge/detail/Stack.h" />
+		<Unit filename="CODE/LuaBridge/detail/TypeList.h" />
+		<Unit filename="CODE/LuaBridge/detail/TypeTraits.h" />
+		<Unit filename="CODE/LuaBridge/detail/Userdata.h" />
+		<Unit filename="CODE/LuaBridge/detail/dump.h" />
+		<Unit filename="CODE/LuaScript.cpp" />
+		<Unit filename="CODE/LuaScript.h" />
+		<Unit filename="CODE/Mesh.cpp" />
+		<Unit filename="CODE/Mesh.h" />
+		<Unit filename="CODE/MultiShader.cpp" />
+		<Unit filename="CODE/MultiShader.h" />
+		<Unit filename="CODE/NoiseCreator.cpp" />
+		<Unit filename="CODE/NoiseCreator.h" />
+		<Unit filename="CODE/Object.cpp" />
+		<Unit filename="CODE/Object.h" />
+		<Unit filename="CODE/Object2D.cpp" />
+		<Unit filename="CODE/Object2D.h" />
+		<Unit filename="CODE/Object3D.cpp" />
+		<Unit filename="CODE/Object3D.h" />
+		<Unit filename="CODE/PhysicsObject.cpp" />
+		<Unit filename="CODE/PhysicsObject.h" />
+		<Unit filename="CODE/PhysicsUI.cpp" />
+		<Unit filename="CODE/PhysicsUI.h" />
+		<Unit filename="CODE/Renderable.cpp" />
+		<Unit filename="CODE/Renderable.h" />
+		<Unit filename="CODE/Resource.cpp" />
+		<Unit filename="CODE/Resource.h" />
+		<Unit filename="CODE/ResourceFactory.cpp" />
+		<Unit filename="CODE/ResourceFactory.h" />
+		<Unit filename="CODE/Shader.cpp" />
+		<Unit filename="CODE/Shader.h" />
+		<Unit filename="CODE/Sound.cpp" />
+		<Unit filename="CODE/Sound.h" />
+		<Unit filename="CODE/Speaker.cpp" />
+		<Unit filename="CODE/Speaker.h" />
+		<Unit filename="CODE/TextTexture.cpp" />
+		<Unit filename="CODE/TextTexture.h" />
+		<Unit filename="CODE/TextureBase.cpp" />
+		<Unit filename="CODE/TextureBase.h" />
+		<Unit filename="CODE/UI.cpp" />
+		<Unit filename="CODE/UI.h" />
+		<Unit filename="CODE/VideoController.cpp" />
+		<Unit filename="CODE/VideoController.h" />
+		<Unit filename="CODE/gameObject.cpp" />
+		<Unit filename="CODE/gameObject.h" />
+		<Unit filename="CODE/glTexture.cpp" />
+		<Unit filename="CODE/glTexture.h" />
+		<Unit filename="CODE/glew.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lapi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lapi.h" />
+		<Unit filename="CODE/lua/lauxlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lauxlib.h" />
+		<Unit filename="CODE/lua/lbaselib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lbitlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lcode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lcode.h" />
+		<Unit filename="CODE/lua/lcorolib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lctype.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lctype.h" />
+		<Unit filename="CODE/lua/ldblib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/ldebug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/ldebug.h" />
+		<Unit filename="CODE/lua/ldo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/ldo.h" />
+		<Unit filename="CODE/lua/ldump.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lfunc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lfunc.h" />
+		<Unit filename="CODE/lua/lgc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lgc.h" />
+		<Unit filename="CODE/lua/linit.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/liolib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/llex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/llex.h" />
+		<Unit filename="CODE/lua/llimits.h" />
+		<Unit filename="CODE/lua/lmathlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lmem.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lmem.h" />
+		<Unit filename="CODE/lua/loadlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lobject.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lobject.h" />
+		<Unit filename="CODE/lua/lopcodes.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lopcodes.h" />
+		<Unit filename="CODE/lua/loslib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lparser.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lparser.h" />
+		<Unit filename="CODE/lua/lstate.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lstate.h" />
+		<Unit filename="CODE/lua/lstring.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lstring.h" />
+		<Unit filename="CODE/lua/lstrlib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/ltable.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/ltable.h" />
+		<Unit filename="CODE/lua/ltablib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/ltm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/ltm.h" />
+		<Unit filename="CODE/lua/lua.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lua.h" />
+		<Unit filename="CODE/lua/lua.hpp" />
+		<Unit filename="CODE/lua/luac.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/luaconf.h" />
+		<Unit filename="CODE/lua/lualib.h" />
+		<Unit filename="CODE/lua/lundump.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lundump.h" />
+		<Unit filename="CODE/lua/lvm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lvm.h" />
+		<Unit filename="CODE/lua/lzio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="CODE/lua/lzio.h" />
+		<Unit filename="CODE/tester.cpp" />
+		<Unit filename="Resources/LuaTest.lua" />
+		<Unit filename="Resources/LuaTest2.lua" />
+		<Unit filename="Resources/Shaders/Billboard.vs" />
+		<Unit filename="Resources/Shaders/Bloom.fs" />
+		<Unit filename="Resources/Shaders/Godrays.fs" />
+		<Unit filename="Resources/Shaders/Shader2D.fs" />
+		<Unit filename="Resources/Shaders/Shader2D.vs" />
+		<Unit filename="Resources/Shaders/Shader3D.fs" />
+		<Unit filename="Resources/Shaders/Shader3D.vs" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
