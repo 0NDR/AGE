@@ -6,8 +6,7 @@ class Sound: public Resource
 {
     private:
         ALuint buffer;
-        Uint8 *data;
-        Uint32 length;
+        Mix_Chunk* chunk;
         SDL_AudioSpec AudioSpecification;
         ALenum Format;
         std::string file;

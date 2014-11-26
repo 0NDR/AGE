@@ -43,6 +43,7 @@
 			<Add option="-lSDL2" />
 			<Add option="-lSDL2_ttf" />
 			<Add option="-lSDL2_image" />
+			<Add option="-lSDL2_mixer" />
 			<Add option="-lglu32" />
 			<Add option="-lopengl32" />
 			<Add option="-lassimp" />
@@ -119,6 +120,8 @@
 		<Unit filename="CODE/Shader.h" />
 		<Unit filename="CODE/Sound.cpp" />
 		<Unit filename="CODE/Sound.h" />
+		<Unit filename="CODE/SoundStream.cpp" />
+		<Unit filename="CODE/SoundStream.h" />
 		<Unit filename="CODE/Speaker.cpp" />
 		<Unit filename="CODE/Speaker.h" />
 		<Unit filename="CODE/TextTexture.cpp" />
@@ -264,8 +267,8 @@
 		</Unit>
 		<Unit filename="CODE/lua/lzio.h" />
 		<Unit filename="CODE/tester.cpp" />
-		<Unit filename="Resources/LuaTest.lua" />
-		<Unit filename="Resources/LuaTest2.lua" />
+		<Unit filename="Resources/Scripts/LuaTest.lua" />
+		<Unit filename="Resources/Scripts/LuaTest2.lua" />
 		<Unit filename="Resources/Shaders/Billboard.vs" />
 		<Unit filename="Resources/Shaders/Bloom.fs" />
 		<Unit filename="Resources/Shaders/Godrays.fs" />

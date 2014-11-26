@@ -1,11 +1,80 @@
 #include "Sound.h"
+
+#define RIFF        0x46464952      /* "RIFF" */
+#define WAVE        0x45564157      /* "WAVE" */
+#define FORM        0x4d524f46      /* "FORM" */
+#define OGGS        0x5367674f      /* "OggS" */
+#define CREA        0x61657243      /* "Crea" */
+#define FLAC        0x43614C66      /* "fLaC" */
+
 void Sound::loadFromFile(std::string filepath)
 {
-    file = filepath;
-    SDL_LoadWAV( filepath.c_str(), &AudioSpecification, &data, &length );
+    Uint32 magic;
+    SDL_AudioSpec *loaded;
+    int samplesize;
+    SDL_RWops *src = SDL_RWFromFile(filepath.c_str(), "rb");
+    int freesrc = 1;
+    /* rcg06012001 Make sure src is valid */
+    if ( ! src ) {
+        SDL_SetError("Mix_LoadWAV_RW with NULL src");
+    }
+
+
+
+    /* Allocate the chunk memory */
+    chunk = (Mix_Chunk *)SDL_malloc(sizeof(Mix_Chunk));
+    if ( chunk == NULL ) {
+        SDL_SetError("Out of memory");
+        if ( freesrc ) {
+            SDL_RWclose(src);
+        }
+    }
+
+    /* Find out what kind of audio file this is */
+    magic = SDL_ReadLE32(src);
+    /* Seek backwards for compatibility with older loaders */
+    SDL_RWseek(src, -(int)sizeof(Uint32), RW_SEEK_CUR);
+
+    switch (magic) {
+        case WAVE:
+        case RIFF:
+            loaded = SDL_LoadWAV_RW(src, freesrc, &AudioSpecification,
+                    (Uint8 **)&chunk->abuf, &chunk->alen);
+            break;
+        case FORM:
+            /*loaded = Mix_LoadAIFF_RW(src, freesrc, &AudioSpecification,
+                    (Uint8 **)&chunk->abuf, &chunk->alen);*/
+            break;
+    #ifdef OGG_MUSIC
+        case OGGS:
+            loaded = Mix_LoadOGG_RW(src, freesrc, &AudioSpecification,
+                    (Uint8 **)&chunk->abuf, &chunk->alen);
+            break;
+    #endif
+    #ifdef FLAC_MUSIC
+        case FLAC:
+            loaded = Mix_LoadFLAC_RW(src, freesrc, &AudioSpecification,
+                    (Uint8 **)&chunk->abuf, &chunk->alen);
+            break;
+    #endif
+        case CREA:
+           /* loaded = Mix_LoadVOC_RW(src, freesrc, &AudioSpecification,
+                    (Uint8 **)&chunk->abuf, &chunk->alen);*/
+            break;
+        default:
+            SDL_SetError("Unrecognized sound file type");
+            if ( freesrc ) {
+                SDL_RWclose(src);
+            }
+            loaded = NULL;
+            break;
+    }
+    if ( !loaded ) {
+        /* The individual loaders have closed src if needed */
+        SDL_free(chunk);
+    }
     alDeleteBuffers(1,&buffer);
-    alBufferData( getBuffer(), getFormat(), data, length, AudioSpecification.freq );
-    SDL_FreeWAV( data );
+    alBufferData( getBuffer(), getFormat(), chunk->abuf, chunk->alen, AudioSpecification.freq);
 }
 ALenum Sound::getFormat()
 {

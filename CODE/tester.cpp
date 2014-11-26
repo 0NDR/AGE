@@ -74,7 +74,7 @@ void setAudioDevice(int ind)
         alListenerfv(AL_VELOCITY,vel);
         alListenerfv(AL_ORIENTATION,orie);
         source.deleteSource();
-        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/bass.wav");
+        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/badrats.wav");
         source.setGain(1);
         source.setPitch(1);
         source.setRolloffFactor(.1);
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
     GLOBAL::Init();
     SDL_Init(SDL_INIT_GAMECONTROLLER|SDL_INIT_AUDIO);
     TTF_Init();
-
+    Mix_Init(MIX_INIT_OGG);
 
     CombCont.addEvent(key,SDL_KEYDOWN);
     CombCont.addEvent(mouse,SDL_MOUSEWHEEL);
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
         alListenerfv(AL_POSITION,campos);
         alListenerfv(AL_ORIENTATION,camorie);
 
-        WorldPlane.setPosition(glm::vec3(dist*cosf((float)GLOBAL::frameCount/60),0,dist*sinf((float)GLOBAL::frameCount/60)));
+        WorldPlane.setPosition(glm::vec3(dist*cosf((float)GLOBAL::frameCount/30),0,dist*sinf((float)GLOBAL::frameCount/30)));
         float ax,ay,az;
         alGetSource3f(source.getSource(),AL_POSITION,&ax,&ay,&az);
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"NormalMap"),0);

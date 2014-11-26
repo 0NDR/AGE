@@ -21,9 +21,11 @@
 #if defined(__WIN32__)
 #include "SDL_ttf.h"
 #include "SDL_image.h"
+#include "SDL_mixer.h"
 #elif defined(__MACOSX__)
 #include "SDL_ttf.h"
 #include "SDL_image.h"
+#include "SDL_mixer.h"
 #endif
 
 
