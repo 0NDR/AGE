@@ -1,5 +1,5 @@
 #include "Speaker.h"
-
+#include "SoundStream.h"
 
 bool Speaker::isLooping()
 {
@@ -65,7 +65,18 @@ void Speaker::setGain(float gain)
 void Speaker::setBuffer(Sound* snd)
 {
     buffer = snd;
-    alSourcei(getSource(),AL_BUFFER,buffer->getBuffer());
+
+    if(buffer->type() == SoundStream::TypeID())
+    {
+        SoundStream* ssbuf = (SoundStream*)buffer;
+        alSourceQueueBuffers(getSource(),1,&ssbuf->getBuffers()[0]);
+        alSourceQueueBuffers(getSource(),1,&ssbuf->getBuffers()[1]);
+    }
+    else
+    {
+        alSourcei(getSource(),AL_BUFFER,buffer->getBuffer());
+    }
+
 }
 
 
@@ -73,28 +84,77 @@ void Speaker::setBuffer(Sound* snd)
 void Speaker::Play(bool loop)
 {
     alSourcei(getSource(),AL_LOOPING,loop?AL_TRUE:AL_FALSE);
+
+    if(buffer)
+    {
+        if(buffer->type() == SoundStream::TypeID())
+        {
+            ((SoundStream*)buffer)->startStream();
+        }
+    }
+
     alSourcePlay(getSource());
+
 }
 void Speaker::Pause()
 {
+    if(buffer)
+    {
+        if(buffer->type() == SoundStream::TypeID())
+        {
+            ((SoundStream*)buffer)->pauseStream();
+        }
+    }
     alSourcePause(getSource());
 }
 void Speaker::Stop()
 {
+    if(buffer)
+    {
+        if(buffer->type() == SoundStream::TypeID())
+        {
+            ((SoundStream*)buffer)->stopStream();
+        }
+    }
     alSourceStop(getSource());
 }
 void Speaker::Rewind()
 {
+    if(buffer)
+    {
+        if(buffer->type() == SoundStream::TypeID())
+        {
+            ((SoundStream*)buffer)->setStreamPosition(0);
+        }
+    }
     alSourceRewind(getSource());
 }
 void Speaker::deleteSource()
 {
-    alDeleteSources(1,&source);
+    if(alIsSource(source))
+        alDeleteSources(1,&source);
 }
 
 
 void Speaker::Update()
 {
+    if(buffer)
+    {
+        if(buffer->type() == SoundStream::TypeID())
+        {
+            SoundStream* ssbuf = (SoundStream*)buffer;
+            int proccessed = 0;
+            alGetSourcei(getSource(),AL_BUFFERS_PROCESSED,&proccessed);
+            if(proccessed>0)
+            {
+                ALuint qubuf;
+                alSourceUnqueueBuffers(getSource(),1,&qubuf);
+                ssbuf->ReadDataTo(qubuf);
+                alSourceQueueBuffers(getSource(),1,&qubuf);
+                proccessed--;
+            }
+        }
+    }
     glm::mat4 AbsoluteMatrix = getAbsoluteMatrix();
     glm::vec3 pos = glm::vec3(-AbsoluteMatrix[3][0],AbsoluteMatrix[3][1],-AbsoluteMatrix[3][2]);
     alSource3f(getSource(),AL_POSITION,pos.x,pos.y,pos.z);

@@ -10,7 +10,7 @@
 #include "LuaScript.h"
 #include "InstanceFactory.h"
 
-#include "Sound.h"
+#include "SoundStream.h"
 #include "Speaker.h"
 Object container;
 Object container2D;
@@ -39,7 +39,9 @@ int speakerindex=0;
 float dist = 0;
 gameObject WorldPlane(&container,"kek");
 Speaker source(&WorldPlane,"kek");
-Sound buffer;
+Speaker source2(&WorldPlane,"kek2");
+SoundStream buffer;
+Sound buffer2;
 CombinedController CombCont(150,100,512,512,SDL_WINDOW_OPENGL|SDL_WINDOW_BORDERLESS);
 
 void setAudioDevice(int ind)
@@ -74,14 +76,24 @@ void setAudioDevice(int ind)
         alListenerfv(AL_VELOCITY,vel);
         alListenerfv(AL_ORIENTATION,orie);
         source.deleteSource();
-        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/badrats.wav");
+        source2.deleteSource();
+        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/flacexamp.flac");
+        buffer2.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/flacexamp.flac");
         source.setGain(1);
         source.setPitch(1);
         source.setRolloffFactor(.1);
         source.setPosition(glm::vec3(0,0,0));
         source.setVelocity(glm::vec3(0,0,0));
         source.setBuffer(&buffer);
-        source.Play(true);
+        source.Play(false);
+
+        source2.setGain(1);
+        source2.setPitch(1);
+        source2.setRolloffFactor(.1);
+        source2.setPosition(glm::vec3(0,0,0));
+        source2.setVelocity(glm::vec3(0,0,0));
+        source2.setBuffer(&buffer2);
+        //source2.Play(true);
 }
 void key(SDL_Event e)
 {
@@ -117,11 +129,10 @@ void key(SDL_Event e)
                 speakerindex=0;
                 std::cout<<"restart"<<std::endl;
             }
-            setAudioDevice(speakerindex);
+            setAudioDevice(0);
            break;
         case SDLK_DOWN:
-            std::cout<<"source pitch: "<<source.getRolloffFactor()<<std::endl;
-            dist+=.5;
+            source.Pause();
             break;
         case SDLK_p:
             DrawingFont.setPointSize(DrawingFont.getPointSize()+10);
@@ -218,7 +229,7 @@ int main(int argc, char *argv[])
     GLOBAL::Init();
     SDL_Init(SDL_INIT_GAMECONTROLLER|SDL_INIT_AUDIO);
     TTF_Init();
-    Mix_Init(MIX_INIT_OGG);
+    Mix_Init(MIX_INIT_OGG|MIX_INIT_FLAC);
 
     CombCont.addEvent(key,SDL_KEYDOWN);
     CombCont.addEvent(mouse,SDL_MOUSEWHEEL);

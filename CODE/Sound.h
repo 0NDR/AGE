@@ -4,10 +4,9 @@
 
 class Sound: public Resource
 {
-    private:
+    protected:
         ALuint buffer;
         Mix_Chunk* chunk;
-        SDL_AudioSpec AudioSpecification;
         ALenum Format;
         std::string file;
     public:
