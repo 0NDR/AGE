@@ -27,14 +27,14 @@ ALenum SoundStream::getFormat()
     }
     if(AudioSpecification.channels == 1)
     {
-        if(AudioSpecification.samples == 8)
+        if(SDL_AUDIO_BITSIZE(AudioSpecification.format) == 8)
             Format = AL_FORMAT_MONO8;
         else
             Format = AL_FORMAT_MONO16;
     }
     else
     {
-        if(AudioSpecification.samples == 16)
+        if(SDL_AUDIO_BITSIZE(AudioSpecification.format) == 8)
             Format = AL_FORMAT_STEREO8;
         else
             Format = AL_FORMAT_STEREO16;
@@ -81,8 +81,6 @@ void SoundStream::setStreamPosition(double pos)
 }
 double SoundStream::getStreamPosition()
 {
-    double position = (long double)bytesRead/((double)AudioSpecification.freq*(double)AudioSpecification.channels*(double)AudioSpecification.samples);
-    std::cout<<(double)AudioSpecification.channels<<" "<<(double)AudioSpecification.samples<<" "<<(double)AudioSpecification.freq<<" ";
-    std::cout<<((double)AudioSpecification.freq*(double)AudioSpecification.channels*(double)AudioSpecification.samples)<<std::endl;
+    double position = (long double)bytesRead/((double)AudioSpecification.freq);
     return position;
 }
