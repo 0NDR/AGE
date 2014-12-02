@@ -40,7 +40,7 @@ float dist = 0;
 gameObject WorldPlane(&container,"kek");
 Speaker source(&WorldPlane,"kek");
 Speaker source2(&WorldPlane,"kek2");
-Sound buffer;
+SoundStream buffer;
 Sound buffer2;
 CombinedController CombCont(150,100,512,512,SDL_WINDOW_OPENGL|SDL_WINDOW_BORDERLESS);
 
@@ -77,8 +77,9 @@ void setAudioDevice(int ind)
         alListenerfv(AL_ORIENTATION,orie);
         source.deleteSource();
         source2.deleteSource();
-        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/badrats.wav");
+        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/flacexamp.flac");
        // buffer2.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/flacexamp.flac");
+        buffer.setStreamPosition(2.65391);
         source.setGain(1);
         source.setPitch(1);
         source.setRolloffFactor(.1);

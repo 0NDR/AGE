@@ -8,12 +8,12 @@ class SoundStream: public Sound
         ALuint buffers[2];
         Mix_Music* mux;
         SDL_AudioSpec AudioSpecification;
-        long bytesRead;
+        long int DataRead;
     public:
-    SoundStream(){addNewType(); buffer=-1;buffers[0]=-1;buffers[1]=-1; Format=0;}
-    SoundStream(Object* parent): Sound(parent){addNewType(); buffer=-1; buffers[0]=-1;buffers[1]=-1; Format=0;}
-    SoundStream(std::string name): Sound(name){addNewType(); buffer=-1; buffers[0]=-1;buffers[1]=-1; Format=0;}
-    SoundStream(Object* parent, std::string name): Sound(parent,name){addNewType(); buffer=-1; buffers[0]=-1;buffers[1]=-1; Format=0;}
+    SoundStream(){addNewType(); buffer=-1;buffers[0]=-1;buffers[1]=-1; Format=0; DataRead=0;}
+    SoundStream(Object* parent): Sound(parent){addNewType(); buffer=-1; buffers[0]=-1;buffers[1]=-1; Format=0;DataRead=0;}
+    SoundStream(std::string name): Sound(name){addNewType(); buffer=-1; buffers[0]=-1;buffers[1]=-1; Format=0;DataRead=0;}
+    SoundStream(Object* parent, std::string name): Sound(parent,name){addNewType(); buffer=-1; buffers[0]=-1;buffers[1]=-1; Format=0;DataRead=0;}
         int MusicPosition = 0;
 
     void loadFromFile(std::string filepath);
