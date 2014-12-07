@@ -5,9 +5,7 @@ void SoundStream::ReadDataTo(ALuint Buffer)
     const int buffsize = 8192;
     Uint8 data[buffsize];
     int bytesWritten=Mix_getDataSegment(mux, data, buffsize, &AudioSpecification);
-    DataRead+=bytesWritten;
     alBufferData( Buffer, getFormat(), data, bytesWritten, AudioSpecification.freq);
-
 }
 void SoundStream::loadFromFile(std::string filepath)
 {
@@ -61,28 +59,25 @@ Mix_MusicType SoundStream::getFileType()
 
 void SoundStream::stopStream()
 {
-    DataRead=0;
     Mix_StopStream(mux);
 }
 void SoundStream::pauseStream()
 {
-    std::cout<<"Paused stream at";
-    getStreamPosition();
+    std::cout<<"Paused at: "<<getStreamPosition()<<std::endl;
+    double time = getStreamPosition();
     Mix_StopStream(mux);
+    setStreamPosition(time);
 }
 void SoundStream::startStream()
 {
-    std::cout<<"Started stream at";
-    setStreamPosition(getStreamPosition());
+    std::cout<<"Played at: "<<getStreamPosition()<<std::endl;
     Mix_StartStream(mux);
 }
 void SoundStream::setStreamPosition(double pos)
 {
-    DataRead=pos*AudioSpecification.freq;
     Mix_SetMusicPosition(mux,pos);
 }
 double SoundStream::getStreamPosition()
 {
-    std::cout<<((double)DataRead/((double)AudioSpecification.freq*8.0))<<" pos"<<std::endl;
-    return ((double)DataRead/(double)AudioSpecification.freq);
+    return Mix_getMusicTime(mux);
 }

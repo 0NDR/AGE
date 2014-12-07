@@ -79,7 +79,6 @@ void setAudioDevice(int ind)
         source2.deleteSource();
         buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/flacexamp.flac");
        // buffer2.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/flacexamp.flac");
-        buffer.setStreamPosition(2.65391);
         source.setGain(1);
         source.setPitch(1);
         source.setRolloffFactor(.1);
@@ -134,6 +133,9 @@ void key(SDL_Event e)
            break;
         case SDLK_DOWN:
             source.Pause();
+            break;
+        case SDLK_RIGHT:
+            source.Play();
             break;
         case SDLK_p:
             DrawingFont.setPointSize(DrawingFont.getPointSize()+10);
