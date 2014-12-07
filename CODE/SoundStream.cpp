@@ -11,7 +11,9 @@ void SoundStream::loadFromFile(std::string filepath)
 {
     file = filepath;
     mux = Mix_LoadMUS( filepath.c_str());//, &AudioSpecification, &data, &length );
-
+    PlayTime=0;
+    PauseTime=0;
+    TotalPauseTime=0;
     for(int i=0;i<2;i++)
     {
         ReadDataTo(getBuffers()[i]);
@@ -59,25 +61,34 @@ Mix_MusicType SoundStream::getFileType()
 
 void SoundStream::stopStream()
 {
+    PauseTime = 0;
+    PlayTime = 0;
+    TotalPauseTime =0;
     Mix_StopStream(mux);
 }
 void SoundStream::pauseStream()
 {
-    std::cout<<"Paused at: "<<getStreamPosition()<<std::endl;
-    double time = getStreamPosition();
+    PauseTime = SDL_GetTicks();
     Mix_StopStream(mux);
-    setStreamPosition(time);
 }
 void SoundStream::startStream()
 {
-    std::cout<<"Played at: "<<getStreamPosition()<<std::endl;
+    PlayTime = SDL_GetTicks();
+    if(PauseTime>0)
+    {
+        TotalPauseTime += (PlayTime-PauseTime);
+    }
     Mix_StartStream(mux);
 }
 void SoundStream::setStreamPosition(double pos)
 {
+    PauseTime = 0;
+    TotalPauseTime=0;
+    PlayTime = SDL_GetTicks()-pos*1000;
     Mix_SetMusicPosition(mux,pos);
 }
 double SoundStream::getStreamPosition()
 {
-    return Mix_getMusicTime(mux);
+    return (double)(SDL_GetTicks()-(PlayTime+TotalPauseTime))/1000;
+    //return Mix_getMusicTime(mux);
 }

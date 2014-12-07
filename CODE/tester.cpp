@@ -79,6 +79,8 @@ void setAudioDevice(int ind)
         source2.deleteSource();
         buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/flacexamp.flac");
        // buffer2.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/flacexamp.flac");
+        buffer.setStreamPosition(5.25);
+        std::cout<<buffer.getStreamPosition()<<" time"<<std::endl;
         source.setGain(1);
         source.setPitch(1);
         source.setRolloffFactor(.1);
