@@ -5,12 +5,14 @@ void SoundStream::ReadDataTo(ALuint Buffer)
     const int buffsize = 8192;
     Uint8 data[buffsize];
     int bytesWritten=Mix_getDataSegment(mux, data, buffsize, &AudioSpecification);
+    std::cout<<bytesWritten<<std::endl;
     alBufferData( Buffer, getFormat(), data, bytesWritten, AudioSpecification.freq);
 }
 void SoundStream::loadFromFile(std::string filepath)
 {
     file = filepath;
     mux = Mix_LoadMUS( filepath.c_str());//, &AudioSpecification, &data, &length );
+    currentState = AUDIOSTATE_Loaded;
     PlayTime=0;
     PauseTime=0;
     TotalPauseTime=0;
@@ -56,11 +58,22 @@ ALuint *SoundStream::getBuffers()
 
 Mix_MusicType SoundStream::getFileType()
 {
+    if(!(currentState&AUDIOSTATE_Loaded))
+    {
+        std::cout<<"ERROR: getFileType() without load for "<<getName()<<std::endl;
+        return MUS_NONE;
+    }
     return Mix_GetMusicType(mux);
 }
 
 void SoundStream::stopStream()
 {
+    if(!(currentState&AUDIOSTATE_Loaded))
+    {
+        std::cout<<"ERROR: stopStream() without load"<<getName()<<std::endl;
+        return;
+    }
+    currentState = AUDIOSTATE_Paused|AUDIOSTATE_Loaded;
     PauseTime = 0;
     PlayTime = 0;
     TotalPauseTime =0;
@@ -68,11 +81,23 @@ void SoundStream::stopStream()
 }
 void SoundStream::pauseStream()
 {
+    if(!(currentState&AUDIOSTATE_Loaded))
+    {
+        std::cout<<"ERROR: pauseStream() without load"<<getName()<<std::endl;
+        return;
+    }
+    currentState = AUDIOSTATE_Paused|AUDIOSTATE_Loaded;
     PauseTime = SDL_GetTicks();
     Mix_StopStream(mux);
 }
 void SoundStream::startStream()
 {
+    if(!(currentState&AUDIOSTATE_Loaded))
+    {
+        std::cout<<"ERROR: startStream() without load for "<<getName()<<std::endl;
+        return;
+    }
+    currentState = AUDIOSTATE_Played|AUDIOSTATE_Loaded;
     PlayTime = SDL_GetTicks();
     if(PauseTime>0)
     {
@@ -82,13 +107,39 @@ void SoundStream::startStream()
 }
 void SoundStream::setStreamPosition(double pos)
 {
+    if(!(currentState&AUDIOSTATE_Loaded))
+    {
+        std::cout<<"ERROR: setStreamPosition() without load for "<<getName()<<std::endl;
+        return;
+    }
     PauseTime = 0;
     TotalPauseTime=0;
     PlayTime = SDL_GetTicks()-pos*1000;
     Mix_SetMusicPosition(mux,pos);
 }
+double SoundStream::getStreamLength()
+{
+     if(!(currentState&AUDIOSTATE_Loaded))
+    {
+        std::cout<<"ERROR: getStreamLength() without load for "<<getName()<<std::endl;
+        return 0;
+    }
+    return Mix_getMusicTime(mux);
+}
 double SoundStream::getStreamPosition()
 {
-    return (double)(SDL_GetTicks()-(PlayTime+TotalPauseTime))/1000;
+    if(!(currentState&AUDIOSTATE_Loaded))
+    {
+        std::cout<<"ERROR: getStreamPosition() without load for "<<getName()<<std::endl;
+        return 0;
+    }
+    double time = (double)(SDL_GetTicks()-(PlayTime+TotalPauseTime))/1000;
+    if(time>getStreamLength())
+        time = 0;
+    return time;
     //return Mix_getMusicTime(mux);
+}
+Uint32 SoundStream::getState()
+{
+    return currentState;
 }

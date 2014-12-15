@@ -1,7 +1,12 @@
 #ifndef SoundStream_H_INCLUDED
 #define SoundStream_H_INCLUDED
 #include "Sound.h"
-
+typedef enum
+{
+    AUDIOSTATE_Played,
+    AUDIOSTATE_Paused,
+    AUDIOSTATE_Loaded,
+}AudioState;
 class SoundStream: public Sound
 {
     private:
@@ -11,12 +16,12 @@ class SoundStream: public Sound
         Uint32 PlayTime;
         Uint32 PauseTime;
         Uint32 TotalPauseTime;
+        Uint32 currentState;
     public:
     SoundStream(){addNewType(); buffer=-1;buffers[0]=-1;buffers[1]=-1; Format=0;PlayTime=0;PauseTime=0;TotalPauseTime=0;}
     SoundStream(Object* parent): Sound(parent){addNewType(); buffer=-1; buffers[0]=-1;buffers[1]=-1; Format=0;PlayTime=0;PauseTime=0;TotalPauseTime=0;}
     SoundStream(std::string name): Sound(name){addNewType(); buffer=-1; buffers[0]=-1;buffers[1]=-1; Format=0;PlayTime=0;PauseTime=0;TotalPauseTime=0;}
     SoundStream(Object* parent, std::string name): Sound(parent,name){addNewType(); buffer=-1; buffers[0]=-1;buffers[1]=-1; Format=0;PlayTime=0;PauseTime=0;TotalPauseTime=0;}
-        int MusicPosition = 0;
 
     void loadFromFile(std::string filepath);
     Mix_MusicType getFileType();
@@ -29,6 +34,8 @@ class SoundStream: public Sound
     void pauseStream();
     void setStreamPosition(double pos);
     double getStreamPosition();
+    double getStreamLength();
+    Uint32 getState();
     static std::string TypeID() {return "SoundStream";}
     virtual std::string type() {return "SoundStream";}
 

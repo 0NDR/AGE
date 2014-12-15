@@ -31,12 +31,14 @@ float xpos = 0;
 float ypos = 0;
 float zoom = 0.0;
 bool warped = false;
-bool locked = true;
+bool locked = false;
 int currentSeed = 25;
 glm::vec3 look,position;
 
 int speakerindex=0;
 float dist = 0;
+bool clicked = false;
+UI streamUI(&container2D,"controller");
 gameObject WorldPlane(&container,"kek");
 Speaker source(&WorldPlane,"kek");
 Speaker source2(&WorldPlane,"kek2");
@@ -77,10 +79,8 @@ void setAudioDevice(int ind)
         alListenerfv(AL_ORIENTATION,orie);
         source.deleteSource();
         source2.deleteSource();
-        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/flacexamp.flac");
-       // buffer2.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/flacexamp.flac");
-        buffer.setStreamPosition(5.25);
-        std::cout<<buffer.getStreamPosition()<<" time"<<std::endl;
+        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/beat.wav");
+        //buffer2.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/bass.ogg");
         source.setGain(1);
         source.setPitch(1);
         source.setRolloffFactor(.1);
@@ -95,7 +95,7 @@ void setAudioDevice(int ind)
         source2.setPosition(glm::vec3(0,0,0));
         source2.setVelocity(glm::vec3(0,0,0));
         source2.setBuffer(&buffer2);
-        //source2.Play(true);
+        source2.Play(true);
 }
 void key(SDL_Event e)
 {
@@ -159,6 +159,18 @@ void mouse(SDL_Event e)
     f.type = SDL_KEYDOWN;
     SDL_PushEvent(&f);
 }
+void mouseDown(SDL_Event e)
+{
+    glm::vec2 uipos = streamUI.getPositionRelative();
+    glm::vec2 mousepos = glm::vec2(e.button.x*2,e.button.y*2)/CombCont.getSize()-glm::vec2(1,1);
+    std::cout<<mousepos.x<<"X"<<mousepos.y<<std::endl;
+    std::cout<<uipos.x<<"X"<<uipos.y<<std::endl;
+    if(abs(uipos.x-mousepos.x)<.1 && abs(uipos.y-mousepos.y)<.1)
+    {
+        clicked = !clicked;
+        std::cout<<"click"<<std::endl;
+    }
+}
 void mouseMoved(SDL_Event e)
 {
     if(!warped)
@@ -173,42 +185,14 @@ void mouseMoved(SDL_Event e)
     {
         warped = false;
     }
-        if (GLOBAL::Distance(e.motion.x, CombCont.getSize().x/2, e.motion.y, CombCont.getSize().y/2, 0, 0)>150 && locked){
-            warped = true;
-            SDL_WarpMouseInWindow(CombCont.getWindow(),CombCont.getSize().x/2, CombCont.getSize().y/2);
-        }
-}
-glm::vec4 joysticktranslation = glm::vec4(0,0,0,0);
-void axisMoved(SDL_Event e)
-{
-    int deadzone = 5000;
-    if(e.jaxis.axis == 1)
+    if (GLOBAL::Distance(e.motion.x, CombCont.getSize().x/2, e.motion.y, CombCont.getSize().y/2, 0, 0)>150 && locked)
     {
-        if(e.jaxis.value<-deadzone||e.jaxis.value>deadzone)
-            joysticktranslation.x = e.jaxis.value/deadzone;
-        else
-            joysticktranslation.x = 0;
+        warped = true;
+        SDL_WarpMouseInWindow(CombCont.getWindow(),CombCont.getSize().x/2, CombCont.getSize().y/2);
     }
-    else if(e.jaxis.axis ==0)
+    if(clicked)
     {
-        if(e.jaxis.value<-deadzone||e.jaxis.value>deadzone)
-            joysticktranslation.y = e.jaxis.value/deadzone;
-        else
-            joysticktranslation.y = 0;
-    }
-    else if(e.jaxis.axis == 3)
-    {
-        if(e.jaxis.value<-deadzone||e.jaxis.value>deadzone)
-            joysticktranslation.z = e.jaxis.value/deadzone;
-        else
-            joysticktranslation.z = 0;
-    }
-    else if(e.jaxis.axis ==2)
-    {
-        if(e.jaxis.value<-deadzone||e.jaxis.value>deadzone)
-            joysticktranslation.w = e.jaxis.value/deadzone;
-        else
-            joysticktranslation.w = 0;
+        buffer.setStreamPosition(((double)e.motion.x/(double)CombCont.getSize().x)*buffer.getStreamLength());
     }
 
 }
@@ -238,11 +222,11 @@ int main(int argc, char *argv[])
 
     CombCont.addEvent(key,SDL_KEYDOWN);
     CombCont.addEvent(mouse,SDL_MOUSEWHEEL);
+    CombCont.addEvent(mouseDown,SDL_MOUSEBUTTONDOWN);
     CombCont.addEvent(mouseMoved,SDL_MOUSEMOTION);
-    CombCont.addEvent(axisMoved, SDL_JOYAXISMOTION);
     SDL_GameController *controller = NULL;
     LuaScript l("kek");
-    l.loadFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/LuaTest.lua");
+    l.loadFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Scripts/LuaTest.lua");
     std::vector<GLOBAL::Vertex> verts;
     std::vector<unsigned int> inds;
 
@@ -268,7 +252,7 @@ int main(int argc, char *argv[])
     tex.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
     DrawingFont.setPath("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Font/comic.ttf");
-    DrawingFont.setPointSize(72);
+    DrawingFont.setPointSize(12);
     DrawingFont.loadFont();
     gradient.setTextureUnit(GL_TEXTURE0);
     gradient.setTarget(GL_TEXTURE_2D);
@@ -296,7 +280,7 @@ int main(int argc, char *argv[])
 
     ManualMesh.meshFromVector(verts,inds);
     spmesh.meshFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/cube.obj");
-    tMesh.meshFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/torus.obj");
+    tMesh.meshFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/plane.obj");
     Shader2D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader2D.fs"),GL_FRAGMENT_SHADER);
     Shader2D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader2D.vs"),GL_VERTEX_SHADER);
     Shader2D.CompileAndLinkProgram();
@@ -311,6 +295,12 @@ int main(int argc, char *argv[])
     WorldPlane.Scale = glm::vec3(5,5,5);
     WorldPlane.Position = glm::vec3(0,0,0);
     WorldPlane.setMesh(&spmesh);
+
+    streamUI.setPosition(glm::vec4(-1,0,0,0));
+    streamUI.setColor(glm::vec4(1,1,1,1));
+    streamUI.setSize(glm::vec4(.1,0,.1,0));
+    streamUI.setMesh(&ManualMesh);
+
 
     Light WorldLight("Light");
     WorldLight.DiffuseColor = glm::vec4(1,1,1,1);
@@ -343,7 +333,7 @@ int main(int argc, char *argv[])
                                                 .endNamespace();
     luabridge::setGlobal(l.getState(),&container,"game");
     luabridge::setGlobal(l.getState(),&container2D,"game2d");
-    //std::cout<<l.Run(true);
+    std::cout<<l.Run(true);
     while(true)
     {
         GLOBAL::frameCount++;
@@ -385,11 +375,11 @@ int main(int argc, char *argv[])
         gradient.Activate();
         gradient.bindTexture();
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram, "ObjectTexture" ),0);
-        //renderGoy(&container2D,&Shader2D);
+        if(buffer.getState()&AUDIOSTATE_Loaded)
+            streamUI.setPosition(glm::vec4(((buffer.getStreamPosition()/buffer.getStreamLength())*2)-1,0,0,0));
+        renderGoy(&container2D,&Shader2D);
         CombCont.Swap();
     }
     return 0;
 }
 
-/*
-*/

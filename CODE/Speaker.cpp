@@ -135,7 +135,6 @@ void Speaker::deleteSource()
         alDeleteSources(1,&source);
 }
 
-
 void Speaker::Update()
 {
     if(buffer)
@@ -143,15 +142,22 @@ void Speaker::Update()
         if(buffer->type() == SoundStream::TypeID())
         {
             SoundStream* ssbuf = (SoundStream*)buffer;
-            int proccessed = 0;
-            alGetSourcei(getSource(),AL_BUFFERS_PROCESSED,&proccessed);
-            if(proccessed>0)
+            int processed, queued, state = 0;
+            alGetSourcei(getSource(),AL_BUFFERS_QUEUED,&queued);
+            alGetSourcei(getSource(),AL_BUFFERS_PROCESSED,&processed);
+            alGetSourcei(getSource(),AL_SOURCE_STATE,&state);
+            if(queued>0&&state==AL_STOPPED)
+            {
+                printf("restart");
+                alSourcePlay(getSource());
+            }
+            while(processed>0)
             {
                 ALuint qubuf;
                 alSourceUnqueueBuffers(getSource(),1,&qubuf);
                 ssbuf->ReadDataTo(qubuf);
                 alSourceQueueBuffers(getSource(),1,&qubuf);
-                proccessed--;
+                processed--;
             }
         }
     }
