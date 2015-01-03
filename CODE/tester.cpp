@@ -4,7 +4,7 @@
 #include "TextTexture.h"
 #include "Font.h"
 #include "GameShader.h"
-#include "PhysicsObject.h"
+#include "gameObject.h"
 #include "Light.h"
 #include "NoiseCreator.h"
 #include "LuaScript.h"
@@ -42,7 +42,7 @@ UI streamUI(&container2D,"controller");
 gameObject WorldPlane(&container,"kek");
 Speaker source(&WorldPlane,"kek");
 Speaker source2(&WorldPlane,"kek2");
-SoundStream buffer;
+Sound buffer;
 Sound buffer2;
 CombinedController CombCont(150,100,512,512,SDL_WINDOW_OPENGL|SDL_WINDOW_BORDERLESS);
 
@@ -79,7 +79,7 @@ void setAudioDevice(int ind)
         alListenerfv(AL_ORIENTATION,orie);
         source.deleteSource();
         source2.deleteSource();
-        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/beat.wav");
+        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/badrats.wav");
         //buffer2.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/bass.ogg");
         source.setGain(1);
         source.setPitch(1);
@@ -87,7 +87,7 @@ void setAudioDevice(int ind)
         source.setPosition(glm::vec3(0,0,0));
         source.setVelocity(glm::vec3(0,0,0));
         source.setBuffer(&buffer);
-        source.Play(false);
+        source.Play(true);
 
         source2.setGain(1);
         source2.setPitch(1);
@@ -192,7 +192,7 @@ void mouseMoved(SDL_Event e)
     }
     if(clicked)
     {
-        buffer.setStreamPosition(((double)e.motion.x/(double)CombCont.getSize().x)*buffer.getStreamLength());
+//        buffer.setStreamPosition(((double)e.motion.x/(double)CombCont.getSize().x)*buffer.getStreamLength());
     }
 
 }
@@ -375,8 +375,8 @@ int main(int argc, char *argv[])
         gradient.Activate();
         gradient.bindTexture();
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram, "ObjectTexture" ),0);
-        if(buffer.getState()&AUDIOSTATE_Loaded)
-            streamUI.setPosition(glm::vec4(((buffer.getStreamPosition()/buffer.getStreamLength())*2)-1,0,0,0));
+/*        if(buffer.getState()&AUDIOSTATE_Loaded)
+            streamUI.setPosition(glm::vec4(((buffer.getStreamPosition()/buffer.getStreamLength())*2)-1,0,0,0));*/
         renderGoy(&container2D,&Shader2D);
         CombCont.Swap();
     }

@@ -5,7 +5,6 @@ void SoundStream::ReadDataTo(ALuint Buffer)
     const int buffsize = 8192;
     Uint8 data[buffsize];
     int bytesWritten=Mix_getDataSegment(mux, data, buffsize, &AudioSpecification);
-    std::cout<<bytesWritten<<std::endl;
     alBufferData( Buffer, getFormat(), data, bytesWritten, AudioSpecification.freq);
 }
 void SoundStream::loadFromFile(std::string filepath)
