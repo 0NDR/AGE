@@ -116,7 +116,7 @@ void main() {
         else if(Texture.x>.85)
             outColor = vec4(1,1,1,1);
     }*/
-    outColor=ObjectColor*Texture;
+    outColor=ObjectColor;
 }
 
 

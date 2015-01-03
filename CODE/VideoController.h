@@ -19,6 +19,7 @@ class Window
 
     public:
         SDL_GLContext context;
+        Window();
         Window(SDL_Window *newScreen);
         Window(int x, int y);
         Window(int x, int y, int sx, int sy);

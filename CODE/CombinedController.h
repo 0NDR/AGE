@@ -11,6 +11,7 @@ class CombinedController: public Window, public AudioController, public KeyContr
     private:
 
     public:
+        CombinedController(){}
         CombinedController(SDL_Window *newScreen):Window(newScreen){}
         CombinedController(int x, int y):Window(x,y){}
         CombinedController(int x, int y, int sx, int sy):Window(x,y,sx,sy){}

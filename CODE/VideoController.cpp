@@ -5,6 +5,19 @@ Window::Window(SDL_Window* newScreen)
     SDLScreen = newScreen;
 
 }
+Window::Window()
+{
+    if(SDL_WasInit(SDL_INIT_EVERYTHING)&SDL_INIT_VIDEO==0)
+    {
+        SDL_Init(SDL_INIT_VIDEO);
+    }
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,8);
+
+    SDLScreen = SDL_CreateWindow("default title",SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+    context = SDL_GL_CreateContext(SDLScreen);
+    glewInit();
+}
 Window::Window(int x, int y)
 {
     if(SDL_WasInit(SDL_INIT_EVERYTHING)&SDL_INIT_VIDEO==0)

@@ -7,12 +7,12 @@ class Font: public Resource
     protected:
         TTF_Font* font;
         std::string path;
-        int pointSize = 12;
+        int pointSize;
     public:
-    Font(){addNewType();}
-    Font(Object* parent): Resource(parent){addNewType();}
-    Font(std::string name): Resource(name){addNewType();}
-    Font(Object* parent, std::string name): Resource(parent,name){addNewType();}
+    Font(){addNewType();pointSize = 12;}
+    Font(Object* parent): Resource(parent){addNewType();pointSize = 12;}
+    Font(std::string name): Resource(name){addNewType();pointSize = 12;}
+    Font(Object* parent, std::string name): Resource(parent,name){addNewType();pointSize = 12;}
 
     static std::string TypeID() {return "Font";}
     virtual std::string type() {return "Font";}

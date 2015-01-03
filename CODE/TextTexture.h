@@ -5,7 +5,7 @@
 #define TTF_RENDER_SOLID 0
 #define TTF_RENDER_SHADED 1
 #define TTF_RENDER_BLENDED 2
-class TextTexture: public glTexture
+class TextTexture: public TextureBase
 {
     private:
         std::string text;
@@ -16,9 +16,9 @@ class TextTexture: public glTexture
         int RenderStyle;
     public:
         TextTexture(){addNewType();RenderStyle=0;}
-        TextTexture(Object* parent): glTexture(parent){addNewType();RenderStyle=0;}
-        TextTexture(std::string name): glTexture(name){addNewType();RenderStyle=0;}
-        TextTexture(Object* parent, std::string name): glTexture(parent,name){addNewType();RenderStyle=0;}
+        TextTexture(Object* parent): TextureBase(parent){addNewType();RenderStyle=0;}
+        TextTexture(std::string name): TextureBase(name){addNewType();RenderStyle=0;}
+        TextTexture(Object* parent, std::string name): TextureBase(parent,name){addNewType();RenderStyle=0;}
 
         glm::vec4* getTextColor();
         glm::vec4* getBackgroundColor();
@@ -40,16 +40,16 @@ class TextTexture: public glTexture
         virtual std::string type() {return "TextTexture";}
         static void RegisterLua(lua_State* l)
         {
-            if(!GLOBAL::isRegistered(glTexture::TypeID(),l))
+            if(!GLOBAL::isRegistered(TextureBase::TypeID(),l))
             {
-                glTexture::RegisterLua(l);
+                TextureBase::RegisterLua(l);
             }
             if(!GLOBAL::isRegistered(Font::TypeID(),l))
             {
                 Font::RegisterLua(l);
             }
             GLOBAL::addRegister(TextTexture::TypeID(),l);
-            luabridge::getGlobalNamespace(l).deriveClass<TextTexture,glTexture>(TypeID().c_str())
+            luabridge::getGlobalNamespace(l).deriveClass<TextTexture,TextureBase>(TypeID().c_str())
                                                 .addFunction("getText",&TextTexture::getText)
                                                 .addFunction("getTextColor",&TextTexture::getTextColor)
                                                 .addFunction("getRenderingType",&TextTexture::getRenderingType)
