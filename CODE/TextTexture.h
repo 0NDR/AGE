@@ -5,7 +5,7 @@
 #define TTF_RENDER_SOLID 0
 #define TTF_RENDER_SHADED 1
 #define TTF_RENDER_BLENDED 2
-class TextTexture: public TextureBase
+class TextTexture: public virtual TextureBase
 {
     private:
         std::string text;
@@ -19,7 +19,7 @@ class TextTexture: public TextureBase
         TextTexture(Object* parent): TextureBase(parent){addNewType();RenderStyle=0;}
         TextTexture(std::string name): TextureBase(name){addNewType();RenderStyle=0;}
         TextTexture(Object* parent, std::string name): TextureBase(parent,name){addNewType();RenderStyle=0;}
-
+        ~TextTexture(){SDL_FreeSurface(TextImage);}
         glm::vec4* getTextColor();
         glm::vec4* getBackgroundColor();
         glm::vec2 getTextLength(int index=-1);

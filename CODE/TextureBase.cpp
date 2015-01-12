@@ -2,18 +2,16 @@
 
 void TextureBase::loadRawFromFile(std::string filePath)
 {
-    //if(LoadedImage!=NULL){SDL_FreeSurface(LoadedImage);}
+    std::cout<<"LOADING: "<<filePath<<std::endl;
     LoadedImage = IMG_Load((char *)(filePath).c_str());
     rawData =LoadedImage->pixels;
     rawLength =sizeof(rawData);
     DisplaySurface = LoadedImage;
 }
-
 void TextureBase::loadRawFromArray(std::vector<char> img)
 {
     loadRawFromArray(&img[0],img.size());
 }
-
 void TextureBase::loadRawFromArray(char* buff, int sizeofBuff)
 {
     //if(LoadedImage!=NULL){SDL_FreeSurface(LoadedImage);}

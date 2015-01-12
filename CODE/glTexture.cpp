@@ -73,8 +73,7 @@ void glTexture::Activate()
 void glTexture::loadTexture()
 {
     getFormat();
-    glActiveTexture(getTextureUnit());
-    getTexture();
+    Activate();
     bindTexture();
     //glTexImage2D( Target, 0, BytesPerPixel, DisplaySurface->w, DisplaySurface->h, 0, Format, GL_UNSIGNED_BYTE, DisplaySurface->pixels );
     gluBuild2DMipmaps(Target,Format, DisplaySurface->w, DisplaySurface->h, Format, GL_UNSIGNED_BYTE, DisplaySurface->pixels);

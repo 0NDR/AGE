@@ -1,7 +1,6 @@
 #ifndef TextureBase_H_INCLUDED
 #define TextureBase_H_INCLUDED
 #include "Resource.h"
-
 class TextureBase: public Resource
 {
     protected:
@@ -14,8 +13,7 @@ class TextureBase: public Resource
         TextureBase(Object* parent): Resource(parent){addNewType();}
         TextureBase(std::string name): Resource(name){addNewType();}
         TextureBase(Object* parent, std::string name): Resource(parent,name){addNewType();}
-        //static std::string TypeID(){return "TextureBase";}
-
+        ~TextureBase(){SDL_FreeSurface(DisplaySurface);SDL_FreeSurface(LoadedImage);delete[] rawData;}
         void loadRawFromFile(std::string filePath);
         void loadRawFromArray(std::vector<char> img);
         void loadRawFromArray(char* buff, int sizeofBuff);

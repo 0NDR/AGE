@@ -1,7 +1,7 @@
 #ifndef glTexture_H_INCLUDED
 #define glTexture_H_INCLUDED
 #include "TextureBase.h"
-class glTexture: public TextureBase
+class glTexture: public virtual TextureBase
 {
     private:
         void* rawData;
