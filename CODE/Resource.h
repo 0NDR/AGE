@@ -2,7 +2,7 @@
 #define RESOURCE_H_INCLUDED
 #include "Object.h"
 
-class Resource: public Object
+class Resource: public Object  ///Base class for any loaded or managable data
 {
     public:
     Resource(){addNewType();}
@@ -10,10 +10,11 @@ class Resource: public Object
     Resource(std::string name): Object(name){addNewType();}
     Resource(Object* parent, std::string name): Object(parent,name){addNewType();}
 
-    static std::string TypeID() {return "Resource";}
+    virtual void loadFromFile(std::string file)=0; ///<Load this resource object from a file
+    static std::string TypeID() {return "Resource";}///<Returns Resource's class name
     virtual std::string type() {return "Resource";}
 
-    static void RegisterLua(lua_State* l)
+    static void RegisterLua(lua_State *l)
     {
         if(!GLOBAL::isRegistered(Object::TypeID(),l))
         {

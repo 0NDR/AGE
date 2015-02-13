@@ -85,12 +85,12 @@ void Physics3D::ConstructRigidBody(btRigidBody::btRigidBodyConstructionInfo CI)
 {
     RigidBody = new btRigidBody(CI);
 }
-void Physics3D::AddToWorld(btDiscreteDynamicsWorld *addto)
+void Physics3D::AddToWorld(PhysicsWorld *addto)
 {
     if(RigidBody!=NULL)
     {
         world = addto;
-        world->addRigidBody(RigidBody);
+        world->World->addRigidBody(RigidBody);
         return;
     }
     std::cout<<"ERROR: Rigid body not constructed for "<<Name<<std::endl;
@@ -98,14 +98,14 @@ void Physics3D::AddToWorld(btDiscreteDynamicsWorld *addto)
 
 void Physics3D::removeFromWorld()
 {
-    world->removeRigidBody(RigidBody);
+    world->World->removeRigidBody(RigidBody);
 }
 bool Physics3D::isCollidedWith(Physics3D *Other)
 {
-    GLOBAL::ObjectCollisionPointer check;
+  /* GLOBAL::ObjectCollisionPointer check;
     check.FirstPointer = this;
     check.SecondPointer = Other;
-    return GLOBAL::checkCollision(&check);
+    return GLOBAL::checkCollision(&check);*/
 }
 
 

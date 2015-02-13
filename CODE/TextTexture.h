@@ -38,8 +38,11 @@ class TextTexture: public virtual TextureBase
         void drawText();
         static std::string TypeID() {return "TextTexture";}
         virtual std::string type() {return "TextTexture";}
-        static void RegisterLua(lua_State* l)
+        static void RegisterLua(lua_State *l)
         {
+
+
+
             if(!GLOBAL::isRegistered(TextureBase::TypeID(),l))
             {
                 TextureBase::RegisterLua(l);

@@ -8,46 +8,41 @@
 #include "glTexture.h"
 #include "LuaScript.h"
 
-struct meshHolder
+struct resourceHolder
 {
-    meshHolder(std::string p, Mesh *f)
+    resourceHolder(std::string p, Resource *f)
     {
         path = p;
         o = f;
     }
     std::string path;
-    Mesh *o;
+    Resource *o;
 };
-struct textureHolder
-{
-    textureHolder(std::string p, glTexture f)
-    {
-        path = p;
-        o = f;
-    }
-    std::string path;
-    glTexture o;
-};
-
-class ResourceFactory: public Resource
+class ResourceFactory
 {
     private:
-        std::vector<meshHolder> loadedMeshList;
-        std::vector<textureHolder> loadedTextureList;
-
+        std::vector<resourceHolder> loadedFiles;
     public:
-        ResourceFactory(){addNewType();}
-        ResourceFactory(Object* parent): Resource(parent){addNewType();}
-        ResourceFactory(std::string name): Resource(name){addNewType();}
-        ResourceFactory(Object* parent, std::string name): Resource(parent,name){addNewType();}
-        //static std::string TypeID(){return "ResourceFactory";}
-        Mesh *loadMesh(std::string path);
-        glTexture loadTexture(std::string path);
+        template<class t> t* loadFromFile(std::string filepath)
+        {
+            for(int i=0;i<loadedFiles.size();i++)
+            {
+                if(loadedFiles[i].path == filepath)
+                    return (t*)loadedFiles[i].o;
+            }
+            t* returnVal = new t;
+            returnVal->t::loadFromFile(filepath);
+            loadedFiles.push_back(resourceHolder(filepath,returnVal));
+            return (t*)returnVal;
+        }
+
+        static std::string TypeID(){return "ResourceFactory";}
         static void RegisterLua(lua_State* l, bool InitParentType = false)
         {
             GLOBAL::addRegister(ResourceFactory::TypeID(),l);
-            luabridge::getGlobalNamespace(l).beginClass<ResourceFactory>("Factory")
-                                                    .addFunction("newMesh", &ResourceFactory::loadMesh)
+            luabridge::getGlobalNamespace(l).beginClass<ResourceFactory>(TypeID().c_str())
+                                                    .addFunction("loadMesh", &ResourceFactory::loadFromFile<Mesh>)
+                                                    .addFunction("loadTexture", &ResourceFactory::loadFromFile<TextureBase>)
                                             .endClass();
         }
 };

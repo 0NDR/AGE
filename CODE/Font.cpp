@@ -11,9 +11,9 @@ void Font::setPointSize(int other){pointSize = other;}
 void Font::setKerning(bool other){TTF_SetFontKerning(font,other?1:0);}
 void Font::setHinting(int other){TTF_SetFontHinting(font,other);}
 void Font::setStyle(int other){TTF_SetFontStyle(font,other);}
-void Font::setPath(std::string filepath){path = filepath;}
-void Font::loadFont()
+void Font::loadFromFile(std::string filepath)
 {
+    path = filepath;
     TTF_CloseFont(font);
     font = TTF_OpenFont(path.c_str(),pointSize);
 }

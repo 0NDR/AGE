@@ -1,7 +1,7 @@
 #ifndef TextureBase_H_INCLUDED
 #define TextureBase_H_INCLUDED
 #include "Resource.h"
-class TextureBase: public Resource
+class TextureBase: public Resource///Base class for loading textures
 {
     protected:
         void* rawData;
@@ -14,15 +14,18 @@ class TextureBase: public Resource
         TextureBase(std::string name): Resource(name){addNewType();}
         TextureBase(Object* parent, std::string name): Resource(parent,name){addNewType();}
         ~TextureBase(){SDL_FreeSurface(DisplaySurface);SDL_FreeSurface(LoadedImage);delete[] rawData;}
-        void loadRawFromFile(std::string filePath);
-        void loadRawFromArray(std::vector<char> img);
-        void loadRawFromArray(char* buff, int sizeofBuff);
-        void loadRawFromArray(void* buff, int w, int h, int bpp);
-        void saveImageToFile(std::string path);
+        void loadFromFile(std::string filePath);///<Load from a file
+        void loadFromArray(std::vector<char> img);///<load from a vector of chars
+        void loadFromArray(char* buff, int sizeofBuff);///<load from a char buffer
+        void loadFromArray(void* buff, int w, int h, int bpp);///<load from a char buffer with specific qualities
+        void saveImageToFile(std::string path); ///<save the image to a file
         static std::string TypeID() {return "TextureBase";}
         virtual std::string type() {return "TextureBase";}
-        static void RegisterLua(lua_State* l)
+        static void RegisterLua(lua_State *l)
         {
+
+
+
             if(!GLOBAL::isRegistered(Resource::TypeID(),l))
             {
                 Resource::RegisterLua(l);
@@ -30,10 +33,10 @@ class TextureBase: public Resource
             GLOBAL::addRegister(TextureBase::TypeID(),l);
             luabridge::getGlobalNamespace(l).deriveClass<TextureBase,Resource>(TypeID().c_str())
                                                 .addConstructor<void (*)(std::string)>()
-                                                .addFunction("loadRawFromFile",&TextureBase::loadRawFromFile)
+                                                .addFunction("loadFromFile",&TextureBase::loadFromFile)
                                                 .addFunction("saveImageToFile",&TextureBase::saveImageToFile)
                                             .endClass();
-        }
+    } ///<Adds the class definition to a given lua state
 };
 
 

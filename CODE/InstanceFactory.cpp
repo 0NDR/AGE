@@ -47,7 +47,7 @@ int InstanceFactory::newObject(lua_State *l)
     else if(Argument == Mesh::TypeID())
     {
         Mesh *nO = new Mesh();
-        nO->meshFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/sphere.obj");
+        nO->loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/sphere.obj");
         luabridge::push(l,nO);
         return 1;
     }

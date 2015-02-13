@@ -2,12 +2,13 @@
 #define PHYSICSOBJECT_H_INCLUDED
 #include "Object3D.h"
 #include "Mesh.h"
+#include "PhysicsWorld.h"
 class Physics3D: public Object3D
 {
     private:
         btTransform trans;
         btQuaternion quat;
-        btDiscreteDynamicsWorld *world;
+        PhysicsWorld *world;
         btDefaultMotionState *dmst;
         btCollisionShape* CollisionShape;
     public:
@@ -23,7 +24,7 @@ class Physics3D: public Object3D
        void ConstructRigidBody(btRigidBody::btRigidBodyConstructionInfo CI);
        void SetCollisionShape(btCollisionShape* shape);
        void SetCollisionShape(Mesh* collShape, bool replaceDuplicates=false);
-       void AddToWorld(btDiscreteDynamicsWorld *addTo);
+       void AddToWorld(PhysicsWorld *addTo);
        void removeFromWorld();
        void setPosition(glm::vec3 Position);
 
@@ -36,8 +37,11 @@ class Physics3D: public Object3D
 
 
 
-        static void RegisterLua(lua_State* l)
+        static void RegisterLua(lua_State *l)
         {
+
+
+
             if(!GLOBAL::isRegistered(Object3D::TypeID(),l))
             {
                 Object3D::RegisterLua(l);
@@ -51,7 +55,7 @@ class Physics3D: public Object3D
                                                 .addFunction("getLinearVelocity", &Physics3D::getLinearVelocity)
                                                 .addFunction("setPosition",&Physics3D::setPosition)
                                             .endClass();
-        }
+    } ///<Adds the class definition to a given lua state
 };
 
 

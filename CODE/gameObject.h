@@ -4,7 +4,7 @@
 #include "Mesh.h"
 #include "glTexture.h"
 #include "Shader.h"
-class gameObject: public Object3D
+class gameObject: public Object3D   ///Extended class for rendering 3D meshs
 {
     protected:
 
@@ -26,12 +26,12 @@ class gameObject: public Object3D
             setShader(shad);
             this->Render();
         }
-        void setMesh(Mesh *newMesh);
-        void setTexture(glTexture *texture);
+        void setMesh(Mesh *newMesh);  ///<Sets the gameObject's mesh
+        void setTexture(glTexture *texture); ///<Sets the gameObject's texture
 
-        void setColor(glm::vec4 pos);
+        void setColor(glm::vec4 pos); ///<Sets the gameObject's color
         glm::vec4 *getColor();
-        glm::vec4 Color;
+        glm::vec4 Color;              ///<The set color
 
 
         virtual int push(lua_State *l)
@@ -41,8 +41,9 @@ class gameObject: public Object3D
         }
         static std::string TypeID() {return "gameObject";}
         virtual std::string type() {return "gameObject";}
-        static void RegisterLua(lua_State* l)
+        static void RegisterLua(lua_State *l)
         {
+
             if(!GLOBAL::isRegistered(Object3D::TypeID(),l))
             {
                 Object3D::RegisterLua(l);
@@ -54,7 +55,7 @@ class gameObject: public Object3D
                                                 .addFunction("setTexture", &gameObject::setTexture)
                                                 .addProperty("Color",(glm::vec4* (gameObject::*)()const)&gameObject::getColor,&gameObject::setColor)
                                             .endClass();
-        }
+    } ///<Adds the class definition to a given lua state
 
 
 };

@@ -6,6 +6,18 @@ void SoundStream::ReadDataTo(ALuint Buffer)
     Uint8 data[buffsize];
     int bytesWritten=Mix_getDataSegment(mux, data, buffsize, &AudioSpecification);
     alBufferData( Buffer, getFormat(), data, bytesWritten, AudioSpecification.freq);
+    if(getStreamPosition()>=getStreamLength())
+    {
+        if(loop)
+        {
+            setStreamPosition(0);
+        }
+        else
+        {
+            fin=true;
+        }
+    }
+
 }
 void SoundStream::loadFromFile(std::string filepath)
 {
@@ -76,8 +88,10 @@ void SoundStream::stopStream()
     PauseTime = 0;
     PlayTime = 0;
     TotalPauseTime =0;
+    //resetBuffers();
     Mix_StopStream(mux);
 }
+
 void SoundStream::pauseStream()
 {
     if(!(currentState&AUDIOSTATE_Loaded))
@@ -89,7 +103,7 @@ void SoundStream::pauseStream()
     PauseTime = SDL_GetTicks();
     Mix_StopStream(mux);
 }
-void SoundStream::startStream()
+void SoundStream::startStream(bool looper)
 {
     if(!(currentState&AUDIOSTATE_Loaded))
     {
@@ -102,6 +116,8 @@ void SoundStream::startStream()
     {
         TotalPauseTime += (PlayTime-PauseTime);
     }
+    loop=looper;
+    fin=false;
     Mix_StartStream(mux);
 }
 void SoundStream::setStreamPosition(double pos)
@@ -134,11 +150,14 @@ double SoundStream::getStreamPosition()
     }
     double time = (double)(SDL_GetTicks()-(PlayTime+TotalPauseTime))/1000;
     if(time>getStreamLength())
-        time = 0;
+        time=getStreamLength();
     return time;
-    //return Mix_getMusicTime(mux);
 }
 Uint32 SoundStream::getState()
 {
     return currentState;
+}
+bool SoundStream::isFinished()
+{
+    return fin;
 }

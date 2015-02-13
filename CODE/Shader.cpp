@@ -41,7 +41,7 @@ void Shader::LoadAndCompileShader(std::string source, GLenum type)
         glDeleteShader(shader);
     }
 }
-void Shader::CompileAndLinkProgram()
+void Shader::LinkProgram()
 {
     glDeleteProgram(ShaderProgram);
     ShaderProgram = glCreateProgram();

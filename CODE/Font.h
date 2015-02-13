@@ -2,7 +2,7 @@
 #define FONT_H_INCLUDED
 #include "Resource.h"
 
-class Font: public Resource
+class Font: public Resource ///Used for managing fonts
 {
     protected:
         TTF_Font* font;
@@ -17,21 +17,19 @@ class Font: public Resource
     static std::string TypeID() {return "Font";}
     virtual std::string type() {return "Font";}
 
-    TTF_Font* getFont();
-    int getPointSize();
-    std::string getPath();
-    bool getKerning();
-    int getHinting();
-    int getStyle();
+    TTF_Font* getFont();            ///<Get the internal SDL font
+    int getPointSize();             ///<Get the pointsize used to draw
+    std::string getPath();          ///<Get the filepath associated with this font
+    bool getKerning();              ///<Get whether kerning is turned on or not
+    int getHinting();               ///<Get the hinting style, one of TTF_HINTING_NORMAL, TTF_HINTING_LIGHT, TTF_HINTING_MONO, TTF_HINTING_NONE, or default TTF_HINTING_NORMAL
+    int getStyle();                 ///<Get the font style, one of TTF_STYLE_BOLD, TTF_STYLE_ITALIC, TTF_STYLE_UNDERLINE, TTF_STYLE_STRIKETHROUGH, or default TTF_STYLE_NORMAL
 
-    void setKerning(bool other);
-    void setHinting(int other);
-    void setStyle(int other);
-    void setPointSize(int other);
-    void setPath(std::string filepath);
-
-    void loadFont();
-    static void RegisterLua(lua_State* l)
+    void setKerning(bool other);    ///<Turn on or off kerning
+    void setHinting(int other);     ///<Set the hinting style, one of TTF_HINTING_NORMAL, TTF_HINTING_LIGHT, TTF_HINTING_MONO, TTF_HINTING_NONE, or default TTF_HINTING_NORMAL
+    void setStyle(int other);       ///<Set the font style, one of TTF_STYLE_BOLD, TTF_STYLE_ITALIC, TTF_STYLE_UNDERLINE, TTF_STYLE_STRIKETHROUGH, or default TTF_STYLE_NORMAL
+    void setPointSize(int other);   ///<Set the pointsize used to draw
+    void loadFromFile(std::string filepath);    ///<load the font from a file
+    static void RegisterLua(lua_State *l)
     {
         if(!GLOBAL::isRegistered(Resource::TypeID(),l))
         {

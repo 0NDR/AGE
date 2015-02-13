@@ -10,15 +10,19 @@ class InstanceFactory: public Resource
         InstanceFactory(std::string name): Resource(name){addNewType();}
         InstanceFactory(Object* parent, std::string name): Resource(parent,name){addNewType();}
         static std::string TypeID(){return "InstanceFactory";}
+        void loadFromFile(std::string filepath){};
         int newObject(lua_State *l);
 
-        static void RegisterLua(lua_State* l)
+        static void RegisterLua(lua_State *l)
         {
 
+
+
+
             GLOBAL::addRegister(InstanceFactory::TypeID(),l);
-            luabridge::getGlobalNamespace(l).beginClass<InstanceFactory>("InstanceFactory")
+            luabridge::getGlobalNamespace(l).beginClass<InstanceFactory>(TypeID().c_str())
                                                 .addCFunction("new",&InstanceFactory::newObject)
                                             .endClass();
-        }
+    } ///<Adds the class definition to a given lua state
 };
 #endif // INSTANCE_FACTORY_INCLUDED

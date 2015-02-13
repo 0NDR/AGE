@@ -23,8 +23,11 @@ class Billboard: public UI
         }
         static std::string TypeID() {return "Billboard";}
         virtual std::string type() {return "Billboard";}
-        static void RegisterLua(lua_State* l)
+        static void RegisterLua(lua_State *l)
         {
+
+
+
             if(!GLOBAL::isRegistered(UI::TypeID(),l))
             {
                 UI::RegisterLua(l);
@@ -34,7 +37,7 @@ class Billboard: public UI
                                                 .addConstructor<void (*)(std::string)>()
                                                 .addProperty("Position",(glm::vec3* (Billboard::*)()const)&Billboard::getPosition,&Billboard::setPosition)
                                             .endClass();
-        }
+    } ///<Adds the class definition to a given lua state
 };
 
 

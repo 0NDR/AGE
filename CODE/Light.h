@@ -2,7 +2,7 @@
 #define LIGHT_H_INCLUDED
 #include "Object3D.h"
 #include "Shader.h"
-class Light: public Object3D
+class Light: public Object3D ///Class to manage OpenGL lights
 {
     private:
 
@@ -18,15 +18,15 @@ class Light: public Object3D
             setShader(shad);
             this->Render();
         }
-        glm::vec3 Direction;
-        glm::vec4 DiffuseColor;
-        glm::vec4 AmbientColor;
-        glm::vec4 SpecularColor;
-        float ConstantAttenuation;
-        float LinearAttenuation;
-        float QuadraticAttenuation;
-        float SpotCutoff;
-        float SpotExponent;
+        glm::vec3 Direction;        ///<The direction of the light
+        glm::vec4 DiffuseColor;     ///<The diffuse color, based on angle the light hits object
+        glm::vec4 AmbientColor;     ///<The ambient color, based only on distance
+        glm::vec4 SpecularColor;    ///<The specular color, based on how the light bounces off the object into an observer's eyes
+        float ConstantAttenuation;  ///<The Constant attenuation, C in C+L(distance)+Q(distance^2)
+        float LinearAttenuation;    ///<The Linear attenuation, L in C+L(distance)+Q(distance^2)
+        float QuadraticAttenuation; ///<The Quadratic attenuation, Q in C+L(distance)+Q(distance^2)
+        float SpotCutoff;           ///<Spotlight cuttof angle, half of total angle
+        float SpotExponent;         ///<How fast light should diffuse as it approaches the cut off
 
         static std::string typeID() {return "Light";}
         virtual std::string type() {return "Light";}
@@ -49,7 +49,7 @@ class Light: public Object3D
                                                 .addData("SpotCutoff",&Light::SpotCutoff)
                                                 .addData("SpotExponent",&Light::SpotExponent)
                                             .endClass();
-        }
+    } ///<Adds the class definition to a given lua state
 };
 
 extern std::vector<Light*> Lights;

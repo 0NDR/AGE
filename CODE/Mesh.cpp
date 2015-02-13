@@ -24,15 +24,11 @@ void Mesh::meshFromVector(std::vector<GLOBAL::Vertex> Verts, std::vector<unsigne
     Indices = inds;
     MeshDataEntries[0].init(VertexData,Indices);
 }
-void Mesh::meshFromFileL(std::string filePath)
-{
-        meshFromFile(filePath);
 
-}
-void Mesh::meshFromFile(std::string filePath, unsigned int Flags )
+void Mesh::loadFromFileParameters(std::string filePath, unsigned int Flags )
 {
     scene = (aiScene *)aiImportFile(filePath.c_str(), Flags);
-
+    if(scene==NULL){std::cout<<"File not found"<<std::endl;return;}
 
     Textures.resize(scene->mNumMaterials);
     MeshDataEntries.resize(scene->mNumMeshes);
@@ -126,7 +122,7 @@ void Mesh::meshFromFile(std::string filePath, unsigned int Flags )
                 std::string FullPath = Dir + "/" + Path.data;
                 std::cout<<"Loading "<<FullPath<<std::endl;
                 glTexture newImage;
-                newImage.loadRawFromFile(FullPath);
+                newImage.loadFromFile(FullPath);
                 newImage.loadTexture();
                 Textures[i] = newImage.getTexture();
             }

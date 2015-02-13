@@ -1,5 +1,6 @@
 #ifndef PHYUI_H_INCLUDED
 #define PHYUI_H_INCLUDED
+#include "PhysicsWorld.h"
 #include "Object2D.h"
 #include "Shader.h"
 #include "Mesh.h"
@@ -8,7 +9,7 @@ class Physics2D: public Object2D
     private:
         btTransform trans;
         btQuaternion quat;
-        btDiscreteDynamicsWorld *world;
+        PhysicsWorld *world;
         btDefaultMotionState *dmst;
         btCollisionShape* CollisionShape;
     public:
@@ -32,7 +33,7 @@ class Physics2D: public Object2D
        void ConstructRigidBody(btRigidBody::btRigidBodyConstructionInfo CI);
        void SetCollisionShape(btCollisionShape* shape);
        void SetCollisionShape(Mesh* collShape, bool replaceDuplicates=false);
-       void AddToWorld(btDiscreteDynamicsWorld *addTo);
+       void AddToWorld(PhysicsWorld *addTo);
        void removeFromWorld();
        void Update();
        bool isCollidedWith(Physics2D *Other);
@@ -44,8 +45,10 @@ class Physics2D: public Object2D
        }
        static std::string TypeID() {return "Physics2D";}
        virtual std::string type() {return "Physics2D";}
-       static void RegisterLua(lua_State* l)
+       static void RegisterLua(lua_State *l)
        {
+
+
            if(!GLOBAL::isRegistered(Object2D::TypeID(),l))
            {
                Object2D::RegisterLua(l);

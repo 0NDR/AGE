@@ -23,7 +23,7 @@ class CombinedController: public Window, public AudioController, public KeyContr
 
         static std::string TypeID() {return "KeyController";}
         virtual std::string type() {return "KeyController";}
-        static void RegisterLua(lua_State* l, bool InitParentType = false)
+        static void RegisterLua(lua_State* l)
         {
                  if(!GLOBAL::isRegistered(Window::TypeID(),l))
                 {

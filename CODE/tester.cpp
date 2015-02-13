@@ -13,6 +13,7 @@
 #include "FrameBuffer.h"
 #include "SoundStream.h"
 #include "Speaker.h"
+#include "ResourceFactory.h"
 class DualTexture: public TextTexture, public glTexture{
 public:
     DualTexture(){;}
@@ -23,7 +24,7 @@ public:
     void loadText(bool drawOver=true){TextTexture::loadText(drawOver); loadTexture();}
     static std::string TypeID() {return "DualTexture";}
     virtual std::string type() {return "DualTexture";}
-    static void RegisterLua(lua_State* l)
+    static void RegisterLua(lua_State *l)
     {
         if(!GLOBAL::isRegistered(TextureBase::TypeID(),l))
         {
@@ -94,11 +95,12 @@ public:
 Object container;
 Object container2D;
 InstanceFactory IF;
+ResourceFactory RF;
 Shader Shader2D("Shader2D");
 GameShader Shader3D("Shader3D");
 Mesh ManualMesh("ManMesh");
-Mesh spmesh("Sphere mesh");
-Mesh tMesh("Torus");
+Mesh* spmesh;
+Mesh* tMesh;
 glTexture tex("Texture");
 DualTexture gradient("Gradient");
 Font DrawingFont("DrawingFont");
@@ -110,7 +112,7 @@ float xpos = 0;
 float ypos = 0;
 float zoom = 0.0;
 bool warped = false;
-bool locked = true;
+bool locked = false;
 bool playing = true;
 int currentSeed = 25;
 glm::vec3 look,position;
@@ -118,14 +120,16 @@ glm::vec3 look,position;
 int speakerindex=0;
 float dist = 0;
 bool clicked = false;
+bool mpressed = false;
 UI streamUI(&container2D,"controller");
 gameObject WorldPlane(&container,"kek");
 Speaker source(&WorldPlane,"kek");
 Speaker source2(&WorldPlane,"kek2");
 Sound buffer;
 Sound buffer2;
-CombinedController CombCont(0,0,512,512,SDL_WINDOW_OPENGL|SDL_WINDOW_BORDERLESS);
+CombinedController CombCont(0,0,512,512,SDL_WINDOW_OPENGL|SDL_WINDOW_ALLOW_HIGHDPI|SDL_WINDOW_RESIZABLE);
 FrameBuffer Buf;
+LuaScript l("kek");
 void setAudioDevice(int ind)
 {
         source.Pause();
@@ -159,7 +163,7 @@ void setAudioDevice(int ind)
         alListenerfv(AL_ORIENTATION,orie);
         source.deleteSource();
         source2.deleteSource();
-        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/badrats.wav");
+        buffer.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/bass.ogg");
         buffer2.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Sound/bass.ogg");
         source.setGain(1);
         source.setPitch(1);
@@ -167,7 +171,6 @@ void setAudioDevice(int ind)
         source.setPosition(glm::vec3(0,0,0));
         source.setVelocity(glm::vec3(0,0,0));
         source.setBuffer(&buffer);
-        source.Play(true);
 
         source2.setGain(1);
         source2.setPitch(1);
@@ -175,7 +178,7 @@ void setAudioDevice(int ind)
         source2.setPosition(glm::vec3(0,0,0));
         source2.setVelocity(glm::vec3(0,0,0));
         source2.setBuffer(&buffer2);
-        source2.Play(true);
+        //source2.Play(true);
 }
 void key(SDL_Event e)
 {
@@ -209,7 +212,6 @@ void key(SDL_Event e)
             if(speakerindex>SDL_GetNumAudioDevices(0)*2)
             {
                 speakerindex=0;
-                std::cout<<"restart"<<std::endl;
             }
             setAudioDevice(0);
            break;
@@ -217,15 +219,15 @@ void key(SDL_Event e)
             source.Pause();
             break;
         case SDLK_RIGHT:
-            source.Play();
+            source.Play(false);
             break;
         case SDLK_p:
             DrawingFont.setPointSize(DrawingFont.getPointSize()+10);
-            DrawingFont.loadFont();
+            DrawingFont.loadFromFile(DrawingFont.getPath());
             break;
         case SDLK_SEMICOLON:
             DrawingFont.setPointSize(DrawingFont.getPointSize()-10);
-            DrawingFont.loadFont();
+            DrawingFont.loadFromFile(DrawingFont.getPath());
             break;
         case SDLK_ESCAPE:
             playing=false;
@@ -298,6 +300,14 @@ void renderGoy(Object* ParentContainer,Shader* renderShader)
         renderGoy(children[i],renderShader);
     }
 }
+void resizeFrameBuffer(SDL_Event e)
+{
+    if(e.window.event==SDL_WINDOWEVENT_RESIZED)
+    {
+        Buf.setResolution(e.window.data1,e.window.data2);
+        glViewport(0,0,e.window.data1,e.window.data2);
+    }
+}
 int main(int argc, char *argv[])
 {
     GLOBAL::Init();
@@ -308,9 +318,9 @@ int main(int argc, char *argv[])
     CombCont.addEvent(mouse,SDL_MOUSEWHEEL);
     CombCont.addEvent(mouseDown,SDL_MOUSEBUTTONDOWN);
     CombCont.addEvent(mouseMoved,SDL_MOUSEMOTION);
+    CombCont.addEvent(resizeFrameBuffer,SDL_WINDOWEVENT);
     Buf.CreateFrameBuffer(512,512);
-    LuaScript l("kek");
-    l.loadFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Scripts/LuaTest.lua");
+    l.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Scripts/LuaTest.lua");
     std::vector<GLOBAL::Vertex> verts;
     std::vector<unsigned int> inds;
 
@@ -334,9 +344,8 @@ int main(int argc, char *argv[])
     tex.setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     tex.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
-    DrawingFont.setPath("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Font/comic.ttf");
     DrawingFont.setPointSize(30);
-    DrawingFont.loadFont();
+    DrawingFont.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Font/comic.ttf");
 
     gradient.setTextureUnit(GL_TEXTURE0);
     gradient.setTarget(GL_TEXTURE_2D);
@@ -344,7 +353,7 @@ int main(int argc, char *argv[])
     gradient.setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
     gradient.setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     gradient.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    gradient.loadRawFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/up.png");
+    gradient.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/up.png");
     gradient.setBackgroundColor(glm::vec4(1,1,1,.5));
     gradient.setTextColor(glm::vec4(0,0,1,1));
     gradient.setRenderingType(TTF_RENDER_SOLID);
@@ -360,25 +369,25 @@ int main(int argc, char *argv[])
     normalTexture.setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
     normalTexture.setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     normalTexture.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    normalTexture.loadRawFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/CraggyNormals2.png");
+    normalTexture.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/CraggyNormals2.png");
     normalTexture.loadTexture();
 
     ManualMesh.meshFromVector(verts,inds);
-    spmesh.meshFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/cube.obj");
-    tMesh.meshFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/plane.obj");
+    spmesh = RF.loadFromFile<Mesh>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/cube.obj");
+    tMesh =  RF.loadFromFile<Mesh>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/plane.obj");
     Shader2D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader2D.fs"),GL_FRAGMENT_SHADER);
     Shader2D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader2D.vs"),GL_VERTEX_SHADER);
-    Shader2D.CompileAndLinkProgram();
+    Shader2D.LinkProgram();
     Shader2D.Activate();
     Shader3D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader3D.fs"),GL_FRAGMENT_SHADER);
     Shader3D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader3D.vs"),GL_VERTEX_SHADER);
-    Shader3D.CompileAndLinkProgram();
+    Shader3D.LinkProgram();
     Shader3D.Activate();
 
     WorldPlane.Color = glm::vec4(1,1,1,1);
     WorldPlane.Scale = glm::vec3(5,5,5);
     WorldPlane.Position = glm::vec3(0,0,0);
-    WorldPlane.setMesh(&spmesh);
+    WorldPlane.setMesh(spmesh);
 
     streamUI.setPosition(glm::vec4(0,0,0,0));
     streamUI.setColor(glm::vec4(1,1,1,.5));
@@ -393,7 +402,6 @@ int main(int argc, char *argv[])
     WorldLight.LinearAttenuation = 1;
     WorldLight.Position = -position;
 
-    GLOBAL::RegisterLua(l.getState());
     gameObject::RegisterLua(l.getState());
     Mesh::RegisterLua(l.getState());
     LuaScript::RegisterLua(l.getState());
@@ -403,6 +411,7 @@ int main(int argc, char *argv[])
     TextTexture::RegisterLua(l.getState());
     KeyController::RegisterLua(l.getState());
     DualTexture::RegisterLua(l.getState());
+    ResourceFactory::RegisterLua(l.getState());
 
 
     KeyController *CombContP = &CombCont;
@@ -411,8 +420,10 @@ int main(int argc, char *argv[])
     Mesh *spmeshp = &ManualMesh;
     Shader* s2dp = &Shader2D;
     InstanceFactory *IF2 = &IF;
+    ResourceFactory *RF2 = &RF;
     luabridge::getGlobalNamespace(l.getState()).beginNamespace("K")
                                                    .addVariable("IF",&IF2)
+                                                   .addVariable("RF",&RF2)
                                                    .addVariable("shader2",&s2dp)
                                                    .addVariable("smesh",&spmeshp)
                                                    .addVariable("texture",&gradientp)
@@ -421,9 +432,9 @@ int main(int argc, char *argv[])
     luabridge::setGlobal(l.getState(),&container,"game");
     luabridge::setGlobal(l.getState(),&container2D,"game2d");
     std::cout<<l.Run(true);
-
     while(playing)
     {
+        Uint64 TimeCurrent = SDL_GetPerformanceCounter();
         GLOBAL::frameCount++;
         CombCont.CheckKeys();
         Lights.clear();
@@ -466,6 +477,7 @@ int main(int argc, char *argv[])
         glUniform1i(glGetUniformLocation(Shader2D.ShaderProgram, "FrameBuffer" ),0);
         renderGoy(&container2D,&Shader2D);
         CombCont.Swap();
+        //std::cout<<"FPS: "<<SDL_GetPerformanceFrequency()/(SDL_GetPerformanceCounter()-TimeCurrent)<<std::endl;
     }
     return 0;
 }

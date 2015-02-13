@@ -3,16 +3,16 @@
 #include "Object.h"
 #include "VideoController.h"
 #include "Shader.h"
-class Renderable: public Object
+class Renderable: public Object ///base class for every object which changes it's enviorment
 {
     protected:
         Window* renderWindow;
         Shader* renderShader;
     public:
-    Renderable(){addNewType(); }
-    Renderable(Object* parent): Object(parent){addNewType();}
-    Renderable(std::string name): Object(name){addNewType();}
-    Renderable(Object* parent, std::string name): Object(parent,name){addNewType();}
+    Renderable(){addNewType(); }///<
+    Renderable(Object* parent): Object(parent){addNewType();}///<
+    Renderable(std::string name): Object(name){addNewType();}///<
+    Renderable(Object* parent, std::string name): Object(parent,name){addNewType();}///<
     void setWindow(Window* newWindow);
     void setShader(Shader* newShader);
     void Render(Shader* shad)
@@ -20,12 +20,12 @@ class Renderable: public Object
         setShader(shad);
         this->Render();
     }
-    virtual void Render()=0;
-    virtual void Update()=0;
+    virtual void Render()=0; ///<Act on object's state
+    virtual void Update()=0; ///<Update object's state
 
-    static std::string TypeID() {return "Renderable";}
+    static std::string TypeID() {return "Renderable";}///<Returns Renderable's class name
     virtual std::string type() {return "Renderable";}
-    static void RegisterLua(lua_State* l)
+    static void RegisterLua(lua_State *l)
     {
             if(!GLOBAL::isRegistered(Object::TypeID(),l))
             {

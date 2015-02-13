@@ -1,6 +1,6 @@
 #include "TextureBase.h"
 
-void TextureBase::loadRawFromFile(std::string filePath)
+void TextureBase::loadFromFile(std::string filePath)
 {
     std::cout<<"LOADING: "<<filePath<<std::endl;
     LoadedImage = IMG_Load((char *)(filePath).c_str());
@@ -8,11 +8,11 @@ void TextureBase::loadRawFromFile(std::string filePath)
     rawLength =sizeof(rawData);
     DisplaySurface = LoadedImage;
 }
-void TextureBase::loadRawFromArray(std::vector<char> img)
+void TextureBase::loadFromArray(std::vector<char> img)
 {
-    loadRawFromArray(&img[0],img.size());
+    loadFromArray(&img[0],img.size());
 }
-void TextureBase::loadRawFromArray(char* buff, int sizeofBuff)
+void TextureBase::loadFromArray(char* buff, int sizeofBuff)
 {
     //if(LoadedImage!=NULL){SDL_FreeSurface(LoadedImage);}
     SDL_RWops *rw = SDL_RWFromMem(buff,sizeofBuff);
@@ -28,7 +28,7 @@ void TextureBase::loadRawFromArray(char* buff, int sizeofBuff)
 
 }
 
-void TextureBase::loadRawFromArray(void* buff, int w, int h, int bpp)
+void TextureBase::loadFromArray(void* buff, int w, int h, int bpp)
 {
 
     //if(LoadedImage!=NULL){SDL_FreeSurface(LoadedImage);}

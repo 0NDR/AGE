@@ -5,6 +5,10 @@
 
 class AudioWorld: public Renderable
 {
+protected:
+    std::vector<Object3D*> AudioBlockers;
+    std::vector<Speaker*> AudioSources;
+public:
     AudioWorld(){addNewType(); }
     AudioWorld(Object* parent): Renderable(parent){addNewType();}
     AudioWorld(std::string name): Renderable(name){addNewType();}

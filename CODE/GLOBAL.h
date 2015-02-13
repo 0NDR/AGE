@@ -44,24 +44,21 @@ extern "C"{
 #include "luaBridge/luaBridge.h"
 #include "luaBridge/RefCountedPtr.h"
 
+
 #include <time.h>
 #define DegreesToRadians(x) ((x/360)*2*3.14159265358)
 #define RadiansToDegrees(x) ((x*360)/(2*3.14159265358))
 #define RANDOM_SEEDT() srand(time(NULL))
 #define RANDOM_SEED(__AMT__) srand(__AMT__)
 #define RANDOM_INT(__MIN__, __MAX__) ((__MIN__) + rand() % ((__MAX__+1) - (__MIN__)))
-
 typedef void (*luaRegister) (lua_State *l);
 struct LuaRegistercontainer
 {
     lua_State* l;
     std::vector<std::string> Registers;
 };
-
 namespace GLOBAL
 {
-   extern btDiscreteDynamicsWorld *PhysicsWorld;
-   extern btDiscreteDynamicsWorld *UIWorld;
    extern float pi;
    extern float Framerate;
    extern float FramerateLock;
@@ -94,14 +91,9 @@ namespace GLOBAL
     void Init();
     void startFrame();
     void endFrame();
-    bool checkCollision(GLOBAL::ObjectCollisionPointer* col);
-    bool checkCollision(void *a, void *b);
-
     LuaRegistercontainer* getContainer(lua_State *l);
     bool isRegistered(std::string TypeID, lua_State *l);
     void addRegister(std::string TypeID, lua_State *l);
-
-    void RegisterLua(lua_State *l);
 }
 extern std::vector<LuaRegistercontainer*> statereg;
 extern std::vector<GLOBAL::ObjectCollisionPointer>Collisions;

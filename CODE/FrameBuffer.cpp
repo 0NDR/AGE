@@ -66,8 +66,23 @@ TextureBase FrameBuffer::RenderToTexture(int ResX, int ResY)
 {
     Activate();
     char *data = new char[ResX*ResY*4];
+    char* newdata = new char[ResX*ResY*4];
     glReadPixels(0,0,ResX,ResY,GL_RGBA,GL_UNSIGNED_BYTE,data);
+    for(int i=0;i<ResY;i++)
+    {
+        for(int j=0;j<ResX;j++)
+        {
+            for(int k=0;k<4;k++)
+            {
+                int column = 4*j+k;
+                int row = i*ResX*4;
+                int invRow = (ResY-(i+1))*ResX*4;
+                newdata[row+column]=data[invRow+column]; //Flip the image
+            }
+        }
+    }
     TextureBase RetTexture;
-    RetTexture.loadRawFromArray(data,ResX,ResY,4);
+    RetTexture.loadFromArray(newdata,ResX,ResY,4);
+    delete data, newdata;
     return RetTexture;
 }

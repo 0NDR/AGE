@@ -2,12 +2,12 @@
 #define LUA_SCRIPT_INCLUDED
 #include "Resource.h"
 
-class LuaScript: public Resource
+class LuaScript: public Resource    ///Class to handle Lua scripts and lua states
 {
     private:
         lua_State *L;
         SDL_Thread *luathread;
-
+        bool multithreaded;
     public:
         LuaScript(){addNewType(); L=0;}
         LuaScript(Object* parent): Resource(parent){addNewType(); L=0;}
@@ -17,10 +17,11 @@ class LuaScript: public Resource
         std::string status;
         std::string source;
         bool isFile;
+        bool isMultithreaded();
         lua_State* getState();
-        void loadFile(std::string path);
+        void loadFromFile(std::string path);
         void loadString(std::string s);
-        std::string Run(bool multithreaded = false);
+        std::string Run(bool runmultithreaded = false);
         void Stop();
         virtual int push(lua_State *l)
         {
@@ -30,21 +31,7 @@ class LuaScript: public Resource
 
         static std::string TypeID() {return "LuaScript";}
         virtual std::string type() {return "LuaScript";}
-        static void RegisterLua(lua_State* l)
-        {
-                if(!GLOBAL::isRegistered(Resource::TypeID(),l))
-                {
-                    Resource::RegisterLua(l);
-                }
-                GLOBAL::addRegister(LuaScript::TypeID(),l);
-                luabridge::getGlobalNamespace(l).deriveClass<LuaScript,Resource>(TypeID().c_str())
-                                                    .addConstructor<void (*)(std::string)>()
-                                                    .addFunction("loadString",&LuaScript::loadString)
-                                                    .addFunction("Run",&LuaScript::Run)
-                                                    .addFunction("__eq",(bool (LuaScript::*) (const LuaScript*) const)&Object::luaIsEqual)
-                                                .endClass();
-
-        }
+        static void RegisterLua(lua_State *l);
 };
 
 #endif

@@ -83,16 +83,18 @@ void Speaker::setBuffer(Sound* snd)
 
 void Speaker::Play(bool loop)
 {
-    alSourcei(getSource(),AL_LOOPING,loop?AL_TRUE:AL_FALSE);
 
     if(buffer)
     {
         if(buffer->type() == SoundStream::TypeID())
         {
-            ((SoundStream*)buffer)->startStream();
+            ((SoundStream*)buffer)->startStream(loop);
+        }
+        else
+        {
+            alSourcei(getSource(),AL_LOOPING,loop?AL_TRUE:AL_FALSE);
         }
     }
-
     alSourcePlay(getSource());
 
 }
@@ -127,7 +129,10 @@ void Speaker::Rewind()
             ((SoundStream*)buffer)->setStreamPosition(0);
         }
     }
-    alSourceRewind(getSource());
+    else
+    {
+        alSourceRewind(getSource());
+    }
 }
 void Speaker::deleteSource()
 {
@@ -146,18 +151,21 @@ void Speaker::Update()
             alGetSourcei(getSource(),AL_BUFFERS_QUEUED,&queued);
             alGetSourcei(getSource(),AL_BUFFERS_PROCESSED,&processed);
             alGetSourcei(getSource(),AL_SOURCE_STATE,&state);
-            if(queued>0&&state==AL_STOPPED)
+            if(!ssbuf->isFinished())
             {
-                printf("restart");
-                alSourcePlay(getSource());
-            }
-            while(processed>0)
-            {
+                if(state==AL_STOPPED &&!processed>0)
+                {
+                    std::cout<<"restart"<<std::endl;
+                    alSourcePlay(getSource());
+                }
                 ALuint qubuf;
-                alSourceUnqueueBuffers(getSource(),1,&qubuf);
-                ssbuf->ReadDataTo(qubuf);
-                alSourceQueueBuffers(getSource(),1,&qubuf);
-                processed--;
+                while(processed>0)
+                {
+                    alSourceUnqueueBuffers(getSource(),1,&qubuf);
+                    ssbuf->ReadDataTo(qubuf);
+                    alSourceQueueBuffers(getSource(),1,&qubuf);
+                    processed--;
+                }
             }
         }
     }
@@ -166,3 +174,22 @@ void Speaker::Update()
     alSource3f(getSource(),AL_POSITION,pos.x,pos.y,pos.z);
 
 }
+/*
+            if(!ssbuf->isFinished())
+            {
+                if(state==AL_STOPPED)
+                {
+                    alSourcePlay(getSource());
+                }
+                ALuint qubuf[2];
+                if(processed>0)
+                {
+                    alSourceUnqueueBuffers(getSource(),processed,qubuf);
+                }
+                for(int i=0;i<processed;i++)
+                {
+                    ssbuf->ReadDataTo(qubuf[i]);
+                    alSourceQueueBuffers(getSource(),1,qubuf);
+                }
+            }
+            */
