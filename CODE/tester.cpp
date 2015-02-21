@@ -49,7 +49,7 @@ public:
                                                 .addFunction("Activate",&DualTexture::Activate)
                                                 .addFunction("loadTexture",&DualTexture::loadTexture)
                                                 .addFunction("setTextureProperty",&DualTexture::setTextureProperty)
-                                                .addFunction("setTextureUnit",&DualTexture::setTextureUnit)
+                                                .addFunction("setUniformLocation",&DualTexture::setUniformLocation)
                                                 .addFunction("setTarget",&DualTexture::setTarget)
                                                 .addFunction("getText",&DualTexture::getText)
                                                 .addFunction("getTextColor",&DualTexture::getTextColor)
@@ -99,10 +99,10 @@ ResourceFactory RF;
 Shader Shader2D("Shader2D");
 GameShader Shader3D("Shader3D");
 Mesh ManualMesh("ManMesh");
-Mesh* spmesh;
-Mesh* tMesh;
+Model* spmesh;
+Model* tMesh;
 glTexture tex("Texture");
-DualTexture gradient("Gradient");
+glTexture gradient("Gradient");
 Font DrawingFont("DrawingFont");
 NoiseCreator n;
 float speedfactorj = 10.f;
@@ -118,17 +118,16 @@ int currentSeed = 25;
 glm::vec3 look,position;
 
 int speakerindex=0;
-float dist = 0;
+float dist = 10;
 bool clicked = false;
 bool mpressed = false;
 UI streamUI(&container2D,"controller");
-gameObject WorldPlane(&container,"kek");
+gameObject WorldPlane("kek");
 Speaker source(&WorldPlane,"kek");
 Speaker source2(&WorldPlane,"kek2");
 Sound buffer;
 Sound buffer2;
-CombinedController CombCont(0,0,512,512,SDL_WINDOW_OPENGL|SDL_WINDOW_ALLOW_HIGHDPI|SDL_WINDOW_RESIZABLE);
-FrameBuffer Buf;
+CombinedController CombCont(100,100,512,512,SDL_WINDOW_OPENGL|SDL_WINDOW_ALLOW_HIGHDPI|SDL_WINDOW_RESIZABLE);
 LuaScript l("kek");
 void setAudioDevice(int ind)
 {
@@ -205,7 +204,7 @@ void key(SDL_Event e)
             position.z+=sin(look.y/360*(2*3.14159265759))/speedfactor;
             break;
         case SDLK_SPACE:
-            xory=!xory;
+            locked=!locked;
             break;
         case SDLK_UP:
             speakerindex++;
@@ -232,8 +231,6 @@ void key(SDL_Event e)
         case SDLK_ESCAPE:
             playing=false;
             break;
-        case SDLK_LSHIFT:
-            Buf.RenderToTexture().saveImageToFile(gradient.getText());
     }
 
 }
@@ -277,10 +274,6 @@ void mouseMoved(SDL_Event e)
         warped = true;
         SDL_WarpMouseInWindow(CombCont.getWindow(),CombCont.getSize().x/2, CombCont.getSize().y/2);
     }
-    if(clicked)
-    {
-//        buffer.setStreamPosition(((double)e.motion.x/(double)CombCont.getSize().x)*buffer.getStreamLength());
-    }
 
 }
 
@@ -300,13 +293,11 @@ void renderGoy(Object* ParentContainer,Shader* renderShader)
         renderGoy(children[i],renderShader);
     }
 }
-void resizeFrameBuffer(SDL_Event e)
+void resizeViewport(SDL_Event e)
 {
+
     if(e.window.event==SDL_WINDOWEVENT_RESIZED)
-    {
-        Buf.setResolution(e.window.data1,e.window.data2);
         glViewport(0,0,e.window.data1,e.window.data2);
-    }
 }
 int main(int argc, char *argv[])
 {
@@ -318,16 +309,15 @@ int main(int argc, char *argv[])
     CombCont.addEvent(mouse,SDL_MOUSEWHEEL);
     CombCont.addEvent(mouseDown,SDL_MOUSEBUTTONDOWN);
     CombCont.addEvent(mouseMoved,SDL_MOUSEMOTION);
-    CombCont.addEvent(resizeFrameBuffer,SDL_WINDOWEVENT);
-    Buf.CreateFrameBuffer(512,512);
+    CombCont.addEvent(resizeViewport,SDL_WINDOWEVENT);
     l.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Scripts/LuaTest.lua");
-    std::vector<GLOBAL::Vertex> verts;
+    std::vector<Vertex> verts;
     std::vector<unsigned int> inds;
 
-    verts.push_back(GLOBAL::Vertex(1,1,0,   0,0,0,  1,1));
-    verts.push_back(GLOBAL::Vertex(1,-1,0,  0,0,0, 1,0));
-    verts.push_back(GLOBAL::Vertex(-1,-1,0, 0,0,0, 0,0));
-    verts.push_back(GLOBAL::Vertex(-1,1,0,  0,0,0,  0,1));
+    verts.push_back(Vertex(1,1,0,   0,0,-1,  1,1));
+    verts.push_back(Vertex(1,-1,0,  0,0,-1, 1,0));
+    verts.push_back(Vertex(-1,-1,0, 0,0,-1, 0,0));
+    verts.push_back(Vertex(-1,1,0,  0,0,-1,  0,1));
 
     inds.push_back(0);
     inds.push_back(1);
@@ -337,73 +327,77 @@ int main(int argc, char *argv[])
     inds.push_back(0);
     inds.push_back(2);
     RANDOM_SEEDT();
-    tex.setTextureUnit(GL_TEXTURE0);
-    tex.setTarget(GL_TEXTURE_2D);
-    tex.setTextureProperty(GL_TEXTURE_WRAP_S,GL_REPEAT);
-    tex.setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
-    tex.setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    tex.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
     DrawingFont.setPointSize(30);
     DrawingFont.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Font/comic.ttf");
+    TextureBase Textures[6];
+    std::string directions[] = {"RIGHT","LEFT","UP","DOWN","BACK","FORWARD"};
 
-    gradient.setTextureUnit(GL_TEXTURE0);
-    gradient.setTarget(GL_TEXTURE_2D);
-    gradient.setTextureProperty(GL_TEXTURE_WRAP_S,GL_REPEAT);
-    gradient.setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
+    gradient.setUniformLocation(1,"CubeTexture");
+    gradient.setTarget(GL_TEXTURE_CUBE_MAP);
+    gradient.setTextureProperty(GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);
+    gradient.setTextureProperty(GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+    gradient.setTextureProperty(GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
     gradient.setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     gradient.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    gradient.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/up.png");
-    gradient.setBackgroundColor(glm::vec4(1,1,1,.5));
-    gradient.setTextColor(glm::vec4(0,0,1,1));
-    gradient.setRenderingType(TTF_RENDER_SOLID);
-    gradient.setFont(&DrawingFont);
-    gradient.setText("img.png");
-    gradient.drawText();
-    gradient.loadText(true);
+    gradient.Activate();
+    gradient.bindTexture();
+    for(int i=0;i<6;i++)
+    {
+        Textures[i].loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/skyboxa/"+directions[i]+".jpg");
+        gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i,Textures[i].getFormat(),Textures[i].getSurface()->w,Textures[i].getSurface()->h,Textures[i].getFormat(),GL_UNSIGNED_BYTE, Textures[i].getSurface()->pixels);
+    }
+
 
     glTexture normalTexture(&container,"normal");
-    normalTexture.setTextureUnit(GL_TEXTURE1);
+    normalTexture.setUniformLocation(0,"ObjectTexture");
     normalTexture.setTarget(GL_TEXTURE_2D);
     normalTexture.setTextureProperty(GL_TEXTURE_WRAP_S,GL_REPEAT);
     normalTexture.setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
-    normalTexture.setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    normalTexture.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    normalTexture.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/CraggyNormals2.png");
+    normalTexture.setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    normalTexture.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    normalTexture.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Craggy.png");
     normalTexture.loadTexture();
 
+    glTexture ntext(&container,"nmap");
+    ntext.setUniformLocation(3,"Texture_Normal0");
+    ntext.setTarget(GL_TEXTURE_2D);
+    ntext.setTextureProperty(GL_TEXTURE_WRAP_S,GL_REPEAT);
+    ntext.setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
+    ntext.setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    ntext.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    ntext.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/out.png");
+    ntext.loadTexture();
+
     ManualMesh.meshFromVector(verts,inds);
-    spmesh = RF.loadFromFile<Mesh>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/cube.obj");
-    tMesh =  RF.loadFromFile<Mesh>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/plane.obj");
+    spmesh = RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/cube.obj");
+    tMesh =  RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/nanosuit/nanosuit.obj");
     Shader2D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader2D.fs"),GL_FRAGMENT_SHADER);
     Shader2D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader2D.vs"),GL_VERTEX_SHADER);
     Shader2D.LinkProgram();
     Shader2D.Activate();
+
     Shader3D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader3D.fs"),GL_FRAGMENT_SHADER);
     Shader3D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader3D.vs"),GL_VERTEX_SHADER);
     Shader3D.LinkProgram();
     Shader3D.Activate();
 
+
     WorldPlane.Color = glm::vec4(1,1,1,1);
-    WorldPlane.Scale = glm::vec3(5,5,5);
+    WorldPlane.Scale = glm::vec3(1,1,1);
     WorldPlane.Position = glm::vec3(0,0,0);
     WorldPlane.setMesh(spmesh);
 
-    streamUI.setPosition(glm::vec4(0,0,0,0));
-    streamUI.setColor(glm::vec4(1,1,1,.5));
-    streamUI.setSize(glm::vec4(1,0,1,0));
-    streamUI.setMesh(&ManualMesh);
-
-
     Light WorldLight("Light");
-    WorldLight.DiffuseColor = glm::vec4(1,1,1,1);
-    WorldLight.SpecularColor = glm::vec4(1,1,1,1);
+    WorldLight.DiffuseColor = glm::vec4(0.1,0.1,0.1,1);
+    WorldLight.SpecularColor = glm::vec4(0.5,0.5,0.5,1);
     WorldLight.AmbientColor = glm::vec4(0.1,0.1,0.1,1);
-    WorldLight.LinearAttenuation = 1;
-    WorldLight.Position = -position;
+    WorldLight.LinearAttenuation = .01;
+    WorldLight.SpotCutoff = 180;
+    WorldLight.Position = glm::vec3(-.5477*10,.5328*10,-.8366*10);
 
     gameObject::RegisterLua(l.getState());
-    Mesh::RegisterLua(l.getState());
+    Model::RegisterLua(l.getState());
     LuaScript::RegisterLua(l.getState());
     InstanceFactory::RegisterLua(l.getState());
     Billboard::RegisterLua(l.getState());
@@ -415,7 +409,7 @@ int main(int argc, char *argv[])
 
 
     KeyController *CombContP = &CombCont;
-    DualTexture* gradientp = &gradient;
+    glTexture* gradientp = &gradient;
     Object *containerp = &container2D;
     Mesh *spmeshp = &ManualMesh;
     Shader* s2dp = &Shader2D;
@@ -438,13 +432,10 @@ int main(int argc, char *argv[])
         GLOBAL::frameCount++;
         CombCont.CheckKeys();
         Lights.clear();
-        Buf.Activate();
         glClearColor(0,1,1,1);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set the blend function
-        glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
         Shader3D.setProjectionMatrix(75,CombCont.getSize().x/CombCont.getSize().y,.01,2000);
         Shader3D.setViewMatrix(position,glm::vec3(look.x,look.y,0));
 
@@ -455,27 +446,35 @@ int main(int argc, char *argv[])
         ALfloat camorie[] = {lookAt.x,lookAt.y,lookAt.z, up.x,up.y,up.z};
         alListenerfv(AL_POSITION,campos);
         alListenerfv(AL_ORIENTATION,camorie);
-
-        WorldPlane.setPosition(glm::vec3(dist*cosf((float)GLOBAL::frameCount/30),0,dist*sinf((float)GLOBAL::frameCount/30)));
+        WorldLight.setPosition(-position);
+        WorldPlane.setPosition(-position);
         float ax,ay,az;
         alGetSource3f(source.getSource(),AL_POSITION,&ax,&ay,&az);
-        glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"NormalMap"),0);
+        glUniform3f(glGetUniformLocation(Shader3D.ShaderProgram, "viewpos"),position.x,position.y,position.z);
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"ColorOn"),1);
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"TextureOn"),1);
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"LightsOn"),0);
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"ZeroOn"),0);
-        gradient.bindTexture();
+        glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram, "isCube" ),1);
+        ntext.Activate();
+        ntext.bindTexture();
+        ntext.AttachToShader(&Shader3D);
+
         gradient.Activate();
+        gradient.bindTexture();
+        gradient.AttachToShader(&Shader3D);
+        glDisable(GL_DEPTH_TEST);
+        WorldPlane.Render(&Shader3D);
+
+        glEnable(GL_DEPTH_TEST);
+        glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram, "isCube" ),0);
+        normalTexture.Activate();
+        normalTexture.bindTexture();
+        normalTexture.AttachToShader(&Shader3D);
+        glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"LightsOn"),1);
+        WorldLight.Render(&Shader3D);
         renderGoy(&container,&Shader3D);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        Shader2D.Activate();
-        glDisable(GL_DEPTH_TEST);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, Buf.texColorBuffer);
-        glUniform1f(glGetUniformLocation(Shader2D.ShaderProgram, "time"),(float)GLOBAL::frameCount/100);
-        glUniform1i(glGetUniformLocation(Shader2D.ShaderProgram, "FrameBuffer" ),0);
-        renderGoy(&container2D,&Shader2D);
         CombCont.Swap();
         //std::cout<<"FPS: "<<SDL_GetPerformanceFrequency()/(SDL_GetPerformanceCounter()-TimeCurrent)<<std::endl;
     }

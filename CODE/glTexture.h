@@ -1,33 +1,31 @@
 #ifndef glTexture_H_INCLUDED
 #define glTexture_H_INCLUDED
 #include "TextureBase.h"
+#include "Shader.h"
 class glTexture: public virtual TextureBase     ///Base class for managing Gl textures
 {
     private:
-        void* rawData;
-        int rawWidth;
-        GLenum Format;
         GLenum TextureUnit;
-        GLint BytesPerPixel;
         GLuint Texture;
+        GLuint UniformIndex;
+        std::string UniformLocation;
     public:
         glTexture(){addNewType(); TextureUnit=0; Format=0; Texture = 0; BytesPerPixel = -1;}
         glTexture(Object* parent): TextureBase(parent){addNewType(); TextureUnit=0;  Format=0; Texture = 0; BytesPerPixel = -1;}
         glTexture(std::string name): TextureBase(name){addNewType(); TextureUnit=0;  Format=0; Texture = 0; BytesPerPixel = -1;}
         glTexture(Object* parent, std::string name): TextureBase(parent,name){addNewType(); TextureUnit=0;  Format=0; Texture = 0; BytesPerPixel = -1;}
 
-        GLenum getFormat();                                 ///<Returns the pixel format in: GL_RGB, GL_RGBA, GL_BGR, GL_BGRA, GL_RG, and GL_RED
         GLenum getTextureUnit();                            ///<Returns which texture channel it is currently using, default GL_TEXTURE0
-        GLint getBytesPerPixel();                           ///<Returns the number of bytes per pixel
         GLuint getTexture();                                ///<Returns the gl texture ID
+        std::string getUniformLocation();                   ///<Returns the location associated with the texture
 
         void bindTexture();                                 ///<Bind this texture
         void Activate();                                    ///<Activates the texture channel
-        void setTextureUnit(GLenum unit);                   ///<Set which channel the texture is using
+        void setUniformLocation(GLuint ind, std::string  loc);   ///<Set the uniform location & number
+        void AttachToShader(Shader* Shader);                ///<Attach the texture to the shader
         void setTarget(GLenum TextureTarget);               ///<Set target i spose
         void setTextureProperty(GLenum pname, GLint param); ///<Set a property for the texture
         void loadTexture();                                 ///<Upload the texture to the GPU and get it ready for use
-
         GLenum Target;
 
 
@@ -49,7 +47,7 @@ class glTexture: public virtual TextureBase     ///Base class for managing Gl te
                                                 .addFunction("Activate",&glTexture::Activate)
                                                 .addFunction("loadTexture",&glTexture::loadTexture)
                                                 .addFunction("setTextureProperty",&glTexture::setTextureProperty)
-                                                .addFunction("setTextureUnit",&glTexture::setTextureUnit)
+                                                .addFunction("setTextureUnit",&glTexture::setUniformLocation)
                                                 .addFunction("setTarget",&glTexture::setTarget)
                                             .endClass();
             luabridge::setGlobal(l,GL_TEXTURE,"GL_TEXTURE");

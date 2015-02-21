@@ -14,7 +14,6 @@ class Light: public Object3D ///Class to manage OpenGL lights
         virtual void Render();
         virtual void Render(Shader* shad)
         {
-            std::cout<<"light render"<<std::endl;
             setShader(shad);
             this->Render();
         }

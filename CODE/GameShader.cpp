@@ -3,7 +3,6 @@
 void GameShader::setViewMatrix(glm::mat4 view)
 {
     Activate();
-    viewPos = glm::vec3(view[3][0],view[3][1],view[3][2]);
     glUniformMatrix4fv(glGetUniformLocation(ShaderProgram,"view"), 1, GL_FALSE, glm::value_ptr(view));
     ViewMatrix = view;
 }

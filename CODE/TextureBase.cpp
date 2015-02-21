@@ -2,8 +2,8 @@
 
 void TextureBase::loadFromFile(std::string filePath)
 {
-    std::cout<<"LOADING: "<<filePath<<std::endl;
     LoadedImage = IMG_Load((char *)(filePath).c_str());
+    if(LoadedImage == NULL){std::cout<<"ERROR: file not found"<<std::endl;}
     rawData =LoadedImage->pixels;
     rawLength =sizeof(rawData);
     DisplaySurface = LoadedImage;
@@ -27,7 +27,41 @@ void TextureBase::loadFromArray(char* buff, int sizeofBuff)
     DisplaySurface = LoadedImage;
 
 }
-
+GLenum TextureBase::getFormat()
+{
+    if(Format!=0)
+        return Format;
+    getBytesPerPixel();
+    if (BytesPerPixel == 4)     // contains an alpha channel
+    {
+        if (DisplaySurface->format->Rmask == 0x000000ff)
+            Format = GL_RGBA;
+        else
+            Format = GL_BGRA;
+    }
+    else if (BytesPerPixel == 3)     // no alpha channel
+    {
+        if (DisplaySurface->format->Rmask == 0x000000ff)
+            Format = GL_RGB;
+        else
+            Format = GL_BGR;
+    }
+    else if (BytesPerPixel==2)
+    {
+        Format = GL_RG;
+    } else if (BytesPerPixel==1)
+    {
+        Format = GL_RED;
+    }
+    return Format;
+}
+GLint TextureBase::getBytesPerPixel()
+{
+    if(BytesPerPixel !=-1)
+        return BytesPerPixel;
+    BytesPerPixel = DisplaySurface->format->BytesPerPixel;
+    return BytesPerPixel;
+}
 void TextureBase::loadFromArray(void* buff, int w, int h, int bpp)
 {
 

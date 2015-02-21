@@ -3,10 +3,12 @@
 
 #include "Resource.h"
 #include "Mesh.h"
+#include "Model.h"
 #include "Shader.h"
 #include "TextureBase.h"
 #include "glTexture.h"
 #include "LuaScript.h"
+
 
 struct resourceHolder
 {
@@ -28,12 +30,12 @@ class ResourceFactory
             for(int i=0;i<loadedFiles.size();i++)
             {
                 if(loadedFiles[i].path == filepath)
-                    return (t*)loadedFiles[i].o;
+                    return dynamic_cast<t*>(loadedFiles[i].o);
             }
             t* returnVal = new t;
             returnVal->t::loadFromFile(filepath);
             loadedFiles.push_back(resourceHolder(filepath,returnVal));
-            return (t*)returnVal;
+            return dynamic_cast<t*>(returnVal);
         }
 
         static std::string TypeID(){return "ResourceFactory";}
@@ -41,10 +43,11 @@ class ResourceFactory
         {
             GLOBAL::addRegister(ResourceFactory::TypeID(),l);
             luabridge::getGlobalNamespace(l).beginClass<ResourceFactory>(TypeID().c_str())
-                                                    .addFunction("loadMesh", &ResourceFactory::loadFromFile<Mesh>)
+                                                    .addFunction("loadModel", &ResourceFactory::loadFromFile<Model>)
                                                     .addFunction("loadTexture", &ResourceFactory::loadFromFile<TextureBase>)
                                             .endClass();
         }
+
 };
 
 

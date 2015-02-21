@@ -11,7 +11,7 @@ enum VideoMode
   Fullscreen = SDL_WINDOW_FULLSCREEN,
   WindowedFullscreen = SDL_WINDOW_FULLSCREEN_DESKTOP
 };
-class Window
+class Window ///Class to manage a window
 {
     private:
         SDL_Window *SDLScreen;
@@ -26,29 +26,29 @@ class Window
         Window(int x, int y, int sx, int sy, Uint32 flags);
         ~Window();
 
-        void setSize(int newx, int newy);
-        void setSize(glm::vec2 newxy);
-        void setPosition(int newx, int newy);
-        void makeCurrent();
-        void Swap();
-        void Minimize();
-        void Maximize();
-        void setTitle(std::string newTitle);
-        void setInputGrab(bool x);
-        void setWindowBordered(bool x);
-        void setHidden(bool x);
-        void setWindowFullscreen(VideoMode f);
-        bool getWindowFlag(Uint32 flag);
-        bool getHidden();
-        bool getGrabbed();
-        bool getBordered();
+        void setSize(int newx, int newy);       ///<Sets the window's size (x,y) in pixels
+        void setSize(glm::vec2 newxy);          ///<Sets the window's size (vec2.x, vec2.y) in pixels
+        void setPosition(int newx, int newy);   ///<Sets the window's position on screen (with 0,0 being the upper left corner of the primary monitor)
+        void makeCurrent();                     ///<Makes the window the active window
+        void Swap();                            ///<Swap GL buffers: can lag with v-sync
+        void Minimize();                        ///<Minimize the window
+        void Maximize();                        ///<Maximize the window
+        void setTitle(std::string newTitle);    ///<Sets the window's title
+        void setInputGrab(bool x);              ///<sets whether the window takes input or not
+        void setWindowBordered(bool x);         ///<Sets the window to bordered or no border
+        void setHidden(bool x);                 ///<Sets whether the window is hidden or not.
+        void setWindowFullscreen(VideoMode f);  ///<Sets whether the window is in fullscreen or not. f must be either Windowed(0), Fullscreen(SDL_WINDOW_FULLSCREEN), or WindowedFullscreen (SDL_WINDOW_FULLSCREEN_DESKTOP)
 
-        SDL_Window* getWindow();
-        std::string getTitle();
-        VideoMode getFullscreenMode();
-        Uint32 getWindowFlags();
-        Uint32 getID();
-        glm::vec2 getSize();
+        bool getWindowFlag(Uint32 flag);        ///<Determine whether or not a window flag is enabled (See SDL_WINDOW flags)
+        bool getHidden();                       ///<Is hidden?
+        bool getGrabbed();                      ///<Is grabbed?
+        bool getBordered();                     ///<Is bordered?
+        SDL_Window* getWindow();                ///<Get the actual SDL_Window object
+        std::string getTitle();                 ///<Get the title
+        VideoMode getFullscreenMode();          ///<Determine the fullscreen mode. must be either Windowed(0), Fullscreen(SDL_WINDOW_FULLSCREEN), or WindowedFullscreen (SDL_WINDOW_FULLSCREEN_DESKTOP)
+        Uint32 getWindowFlags();                ///<Returns the window's flags
+        Uint32 getID();                         ///<Returns the window's ID
+        glm::vec2 getSize();                    ///<Get the size of the window, in pixels.
 
         static std::string TypeID() {return "VideoController";}
         virtual std::string type() {return "VideoController";}

@@ -63,19 +63,6 @@ namespace GLOBAL
    extern float Framerate;
    extern float FramerateLock;
    extern int frameCount;
-   struct Vertex{
-        glm::vec3 Position;
-        glm::vec3 Normal;
-        glm::vec2 TextureCoords;
-        glm::vec3 Tangent;
-        glm::vec3 Bitangent;
-        Vertex(){}
-        Vertex(float Posx,float Posy,float Posz,float Normx,float Normy,float Normz,float TexX,float TexY){ //good old TexX
-            Position = glm::vec3(Posx,Posy,Posz);
-            Normal = glm::vec3(Normx,Normy,Normz);
-            TextureCoords = glm::vec2(TexX,TexY);
-        }
-    };
     struct ObjectCollisionPointer
     {
         void* FirstPointer;

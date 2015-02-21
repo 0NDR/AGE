@@ -1,7 +1,7 @@
 #ifndef GAMEOBJECT_H_INCLUDED
 #define GAMEOBJECT_H_INCLUDED
 #include "Object3D.h"
-#include "Mesh.h"
+#include "Model.h"
 #include "glTexture.h"
 #include "Shader.h"
 class gameObject: public Object3D   ///Extended class for rendering 3D meshs
@@ -10,7 +10,7 @@ class gameObject: public Object3D   ///Extended class for rendering 3D meshs
 
     private:
         glm::mat4 AbsoluteMatrix;
-        Mesh *renderMesh;
+        Model *renderMesh;
         glTexture *renderTexture = NULL;
     public:
         gameObject(){addNewType();}
@@ -22,11 +22,10 @@ class gameObject: public Object3D   ///Extended class for rendering 3D meshs
         virtual void Render();
         virtual void Render(Shader* shad)
         {
-            std::cout<<"gameObject render"<<std::endl;
             setShader(shad);
             this->Render();
         }
-        void setMesh(Mesh *newMesh);  ///<Sets the gameObject's mesh
+        void setMesh(Model *newMesh);  ///<Sets the gameObject's mesh
         void setTexture(glTexture *texture); ///<Sets the gameObject's texture
 
         void setColor(glm::vec4 pos); ///<Sets the gameObject's color

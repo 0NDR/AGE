@@ -69,7 +69,7 @@ void Window::makeCurrent()
 }
 void Window::Swap()
 {
-    SDL_GL_SwapWindow(SDLScreen);
+    SDL_GL_SwapWindow(SDLScreen);///<Warning: lags with V-sync under some weird conditions.
 }
 glm::vec2 Window::getSize()
 {

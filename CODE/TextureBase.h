@@ -6,19 +6,26 @@ class TextureBase: public Resource///Base class for loading textures
     protected:
         void* rawData;
         int rawLength;
+        GLenum Format;
+        GLint BytesPerPixel;
         SDL_Surface *DisplaySurface;
         SDL_Surface *LoadedImage;
     public:
-        TextureBase(){addNewType();}
-        TextureBase(Object* parent): Resource(parent){addNewType();}
-        TextureBase(std::string name): Resource(name){addNewType();}
-        TextureBase(Object* parent, std::string name): Resource(parent,name){addNewType();}
+        TextureBase(){addNewType();Format=0; BytesPerPixel = -1;}
+        TextureBase(Object* parent): Resource(parent){addNewType();Format=0; BytesPerPixel = -1;}
+        TextureBase(std::string name): Resource(name){addNewType();Format=0; BytesPerPixel = -1;}
+        TextureBase(Object* parent, std::string name): Resource(parent,name){addNewType();Format=0; BytesPerPixel = -1;}
         ~TextureBase(){SDL_FreeSurface(DisplaySurface);SDL_FreeSurface(LoadedImage);delete[] rawData;}
         void loadFromFile(std::string filePath);///<Load from a file
         void loadFromArray(std::vector<char> img);///<load from a vector of chars
         void loadFromArray(char* buff, int sizeofBuff);///<load from a char buffer
         void loadFromArray(void* buff, int w, int h, int bpp);///<load from a char buffer with specific qualities
         void saveImageToFile(std::string path); ///<save the image to a file
+
+        GLenum getFormat();                                 ///<Returns the pixel format in: GL_RGB, GL_RGBA, GL_BGR, GL_BGRA, GL_RG, and GL_RED
+        GLint getBytesPerPixel();                           ///<Returns the number of bytes per pixel
+        SDL_Surface* getSurface(){return DisplaySurface;}
+
         static std::string TypeID() {return "TextureBase";}
         virtual std::string type() {return "TextureBase";}
         static void RegisterLua(lua_State *l)

@@ -9,11 +9,6 @@ void gameObject::Render()
         }
         renderShader->Activate();
         GLuint ShaderProgram = renderShader->ShaderProgram;
-        GLint pA = glGetAttribLocation(ShaderProgram, "position");
-        GLint nA = glGetAttribLocation(ShaderProgram, "normal");
-        GLint teA = glGetAttribLocation(ShaderProgram, "texcoord");
-        GLint taA = glGetAttribLocation(ShaderProgram, "tangent");
-        GLint btA = glGetAttribLocation(ShaderProgram, "bitangent");
         GLint unioverColor = glGetUniformLocation(ShaderProgram,"ObjectColor");
         glUniform4f(unioverColor,Color.x,Color.y,Color.z,Color.w);
         if(renderTexture!=NULL)
@@ -25,34 +20,14 @@ void gameObject::Render()
         glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "model" ),1,GL_FALSE,glm::value_ptr(getAbsoluteMatrix()));
 
         glUniform3f(glGetUniformLocation(ShaderProgram, "scale"),Scale.x,Scale.y,Scale.z);
-        glEnableVertexAttribArray(pA);
-        glEnableVertexAttribArray(nA);
-        glEnableVertexAttribArray(teA);
-        glEnableVertexAttribArray(taA);
-        glEnableVertexAttribArray(btA);
-        for (unsigned int i = 0 ; i < renderMesh->MeshDataEntries.size() ; i++) {
-            glBindBuffer(GL_ARRAY_BUFFER, renderMesh->MeshDataEntries[i].VertexBuffer);
-            glVertexAttribPointer(pA, 3, GL_FLOAT, GL_FALSE,  sizeof(GLOBAL::Vertex), 0);
-            glVertexAttribPointer(nA, 3, GL_FLOAT, GL_FALSE,  sizeof(GLOBAL::Vertex), (const GLvoid*)12);
-            glVertexAttribPointer(teA, 2, GL_FLOAT, GL_FALSE,  sizeof(GLOBAL::Vertex), (const GLvoid*)24);
-            glVertexAttribPointer(taA, 3, GL_FLOAT, GL_FALSE,  sizeof(GLOBAL::Vertex), (const GLvoid*)32);
-            glVertexAttribPointer(btA, 3, GL_FLOAT, GL_FALSE,  sizeof(GLOBAL::Vertex), (const GLvoid*)44);
-
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderMesh->MeshDataEntries[i].IndexBuffer);
-            glDrawElements(GL_TRIANGLES, renderMesh->MeshDataEntries[i].IndiciesBufferLength, GL_UNSIGNED_INT, 0);
-        }
-    glDisableVertexAttribArray(pA);
-    glDisableVertexAttribArray(nA);
-    glDisableVertexAttribArray(teA);
-    glDisableVertexAttribArray(taA);
-    glDisableVertexAttribArray(btA);
+        renderMesh->drawToShader(renderShader);
 }
 void gameObject::Update()
 {
 
 }
 
-void gameObject::setMesh(Mesh* newMesh)
+void gameObject::setMesh(Model* newMesh)
 {
     renderMesh = newMesh;
 }
