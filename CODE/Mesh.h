@@ -6,6 +6,7 @@
 
 const std::string MESH_DiffuseTexturePrefix = "Texture_Diffuse";
 const std::string MESH_NormalTexturePrefix = "Texture_Normal";
+const std::string MESH_HeightTexturePrefix = "Texture_Height";
 const std::string  MESH_SpecularTexturePrefix = "Texture_Specular";
 struct Vertex{
     glm::vec3 Position;
@@ -43,6 +44,8 @@ class Mesh: public Resource///<Basic class handling vertex, index, and texture d
         void loadTextures(std::string pathToDirectory, aiScene *scene);
         void loadTexturesFromMaterial(aiMaterial* mat, aiTextureType type, std::string dir);
         void drawToShader(Shader* shdr);
+
+        void calculateTangentsBitangents();
         static std::string TypeID() {return "Mesh";}///< Returns Mesh's class name
         virtual std::string type() {return "Mesh";}
         static void RegisterLua(lua_State *l)

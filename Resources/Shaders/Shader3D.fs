@@ -2,24 +2,26 @@
 #define pi 3.14159265659
 
 const int lightMax =50;
-in vec4 VertexPosition;
-in vec2 Texcoord;
-in vec3 Normal,VertexToEye,Bitangent,Tangent;
+in vec4 VertexPosition,color;
+in vec2 texcoordo;
+in vec3 normalo,tangento,texcoord30;
 
 out vec4 outColor;
 uniform sampler2D ObjectTexture;
-uniform sampler2D NormalMap;
+uniform samplerCube CubeTexture;
+uniform sampler2D Texture_Diffuse0;
+uniform sampler2D Texture_Specular0;
+uniform sampler2D Texture_Normal0,Texture_Height0;
 uniform mat4 model, view, proj;
-uniform vec3 scale;
+uniform vec3 scale,viewpos;
 //uniform vec4 ObjectDiffuse, ObjectAmbient, ObjectSpecular, GlobalAmbient;
 vec4 ObjectDiffuse=vec4(1,1,1,1);
 vec4 ObjectAmbient=vec4(1,1,1,1);
 vec4 ObjectSpecular=vec4(1,1,1,1);
 vec4 GlobalAmbient=vec4(0,0,0,1);
-int Shininess = 256;
+int Shininess = 32;
 uniform float LightCutoffs[lightMax];
 uniform float LightSpotExponents[lightMax];
-in vec4 color;
 uniform vec4 LightAmbients[lightMax];
 uniform vec4 LightDiffuses[lightMax];
 uniform vec4 LightSpeculars[lightMax];
@@ -29,31 +31,14 @@ uniform float LightLinearAttenuations[lightMax];
 uniform float LightConstantAttenuations[lightMax];
 uniform float LightQuadraticAttenuations[lightMax];
 uniform int lightCount;
-uniform float time;
+uniform int time;
 uniform int Unicolors;
-uniform bool LightsOn, TextureOn, ColorOn, ZeroOn;
+uniform bool LightsOn, TextureOn, ColorOn, ZeroOn,isCube;
 
-vec4 getColorFromAlt(float altitude)
-{
-    if(altitude<=0.05)
-        return vec4(0,0,1,1);
-    else if(altitude>0.05 && altitude<=.1)
-        return vec4(.5,.5,1,1);
-    else if(altitude>0.1 && altitude<=.2)
-        return vec4(1,1,0,1);
-    else if(altitude>.2&&altitude<=.50)
-        return vec4(0,1,0,1);
-    else if(altitude>.5&&altitude<=.68)
-        return vec4(.65,.16,.16,1);
-    else if(altitude>.68&&altitude<=.85)
-        return vec4(.5,.5,.5,1);
-    else if(altitude>.85)
-        return vec4(1,1,1,1);
-}
 vec4 getLightsStupid()
 {
     vec4 FINALLIGHT;
-    vec3 n = normalize(Normal);
+    vec3 n = normalize(normalo);
     for(int i=0;i<lightCount&&i<lightMax;++i)
     {
         vec3 LightToVertex = vec3(LightPositions[i]-VertexPosition.xyz);   //Surface to light
@@ -63,52 +48,74 @@ vec4 getLightsStupid()
     return FINALLIGHT;
 
 }
-vec4 GetLights(){
-    vec3 n = normalize(Normal);
-    vec3 t = normalize(Tangent);
-    vec3 b = cross(n,t);
-    mat3 tbnMatrix = mat3(t.x, b.x, n.x,
-                          t.y, b.y, n.y,
-                          t.z, b.z, n.z);
-    vec3 vToEye = normalize(VertexToEye);
-    vec3 bump = normalize(texture(NormalMap, Texcoord*scale.x).xyz*2-1);//+vec3(0,cos(Texcoord.y+time)/64,0);
+vec2 parallaxMapping(mat3 tbnMatrix,sampler2D Height,vec2 texcoord,vec2 scale)
+{
+    vec3 V = normalize(tbnMatrix*normalize(VertexPosition.xyz-viewpos));
+   // determine number of layers from angle between V and N
+   const float minLayers = 5;
+   const float maxLayers = 15;
+   float numLayers = 900;//mix(maxLayers, minLayers, abs(dot(vec3(0, 0, 1), V)));
+
+   // height of each layer
+   float layerHeight = 1.0 / numLayers;
+   // depth of current layer
+   float currentLayerHeight = 0;
+   // shift of texture coordinates for each iteration
+   vec2 dtex = scale.x * V.xy / V.z / numLayers;
+
+   // current texture coordinates
+   vec2 currentTextureCoords = texcoord;
+
+   // get first depth from heightmap
+   float heightFromTexture = 1-(texture2D(Height, currentTextureCoords).a);
+
+   // while point is above surface
+   while(heightFromTexture > currentLayerHeight)
+   {
+      // to the next layer
+      currentLayerHeight += layerHeight;
+      // shift texture coordinates along vector V
+      currentTextureCoords -= dtex;
+      // get new depth from heightmap
+      heightFromTexture = 1-(texture2D(Height, currentTextureCoords).a);
+   }
+
+   // return results
+   return currentTextureCoords;
+}
+
+vec4 GetLights(vec2 texcoord, sampler2D norm,mat3 tbnMatrix){
+
+    vec3 bump = normalize(texture(norm, texcoord).xyz*2-1);    //unit vector in direction of the texture bump
+    vec4 specularMap = texture(Texture_Specular0, texcoord);
     vec4 FINALLIGHT = GlobalAmbient*ObjectAmbient;
 
     for(int i=0;i<lightCount&&i<lightMax;++i){
-        /* VERTEX <-> LIGHT VECTORS */
-        vec3 LightToVertex = vec3(LightPositions[i]-VertexPosition.xyz);   //Surface to light
-        float Distance = length(LightToVertex);
-        LightToVertex = normalize(LightToVertex);
 
-        vec3 LightToSurface = tbnMatrix*LightToVertex;
-        vec3 NormalSurfaceToLight = normalize(LightToSurface);
-        vec3 R = normalize(reflect(-vToEye,bump));
-        float Direction;
-        if(LightDirections[i] == vec3(0,0,0))
-        {
-            Direction = 1;
-        }
-        else
-        {
-            Direction = dot(normalize(LightDirections[i]),normalize(-LightToVertex));
-        }
-        float BumpDiffuse=max(dot(bump,NormalSurfaceToLight),0);
-        float Diffuse =max(dot(n,LightToVertex),0);
-        float Specular= pow(clamp(dot(NormalSurfaceToLight,R),0,1),max(Shininess,1));
+        vec3 l = tbnMatrix*(LightPositions[i]-VertexPosition.xyz);   //vector with direction of light to vertex
+        vec3 v = normalize(tbnMatrix*(VertexPosition.xyz-viewpos));
+        float Distance = length(l);                            //distance between light and surface
+        l = normalize(l);                          //make light to vertex vector a unit vector
+        vec3 R = reflect(-l,bump);
+        float nDotL=max(dot(bump,l),0);                  //cosine of the angle between the bump and the light to surface
+        float Specular=0;
+        if(nDotL!=0)
+            Specular = pow(clamp(dot(R,v),0,1),Shininess);
+        float SpotlightAngle = dot(normalize(LightDirections[i]),l); //Direction is the cos of the angle between the direction of the light and the vector pointing towards the vertex
+        if(LightDirections[i]==vec3(0,0,0))
+            SpotlightAngle =1;
         // COLORIZE LIGHTS
-        if(degrees(acos(Direction))<=LightCutoffs[i]){
+        if(SpotlightAngle>cos(radians(LightCutoffs[i]))){
 
             // CALCULATE ATTENUATION
-            float AttenuationFinal = pow(Direction,LightSpotExponents[i]);
+            float AttenuationFinal = pow(SpotlightAngle,LightSpotExponents[i]);
             float AttenuationFactor =(LightConstantAttenuations[i]+LightLinearAttenuations[i]*Distance+LightQuadraticAttenuations[i]*Distance*Distance);
             if(AttenuationFactor!=0){
                 AttenuationFinal = AttenuationFinal/AttenuationFactor;
             }
                 FINALLIGHT += ObjectAmbient*LightAmbients[i];
-                FINALLIGHT += AttenuationFinal*LightDiffuses[i]*ObjectDiffuse*Diffuse*BumpDiffuse*Direction;
-            if(Diffuse*Direction>0){
-                FINALLIGHT += AttenuationFinal*LightSpeculars[i]*ObjectSpecular*Diffuse*Specular*Direction;
-            }
+                FINALLIGHT += AttenuationFinal*LightDiffuses[i]*ObjectDiffuse*nDotL*SpotlightAngle;
+                FINALLIGHT += AttenuationFinal*LightSpeculars[i]*ObjectSpecular*Specular*SpotlightAngle;
        }
     }
     return vec4(FINALLIGHT.xyz,1);
@@ -117,12 +124,29 @@ vec4 GetLights(){
 void main() {
 
     outColor = vec4(1,1,1,1);
+    vec3 n = normalize(normalo);                                     //unit Normal vector
+    vec3 t = normalize(tangento);                                    //unit Tangent vector
+    vec3 b = cross(n,t);                                            //cross them to make unit bitangent vector
+
+    mat3 tbnMatrix = mat3(t,b,n);
+    vec2 DisplacedTexCoord = texcoordo;
+    //if(time%100>50)
+    float amt = -time%100;
+        DisplacedTexCoord = parallaxMapping(tbnMatrix,Texture_Normal0,texcoordo,vec2(.001,0));
+
     if(LightsOn)
-        outColor *= GetLights();
+       outColor *= GetLights(DisplacedTexCoord,Texture_Normal0,tbnMatrix);
+
+    vec4 tex = texture(Texture_Normal0,DisplacedTexCoord);
     if(TextureOn)
-        outColor *= texture(ObjectTexture,Texcoord);
+    {
+            if(isCube)
+                outColor *= vec4(texture(CubeTexture,texcoord30).xyz,1);
+            else
+                outColor *= vec4(texture(Texture_Diffuse0,DisplacedTexCoord).xyz,1);
+    }
     if(ColorOn)
-        outColor *= color;
+        ;//outColor *= color;
     if(ZeroOn)
-        outColor *= vec4(0,0,0,1);
+       ;// outColor *= vec4(0,0,0,1);
 }

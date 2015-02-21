@@ -98,25 +98,7 @@ float getBlur(float depth, float amt, float amtint)
 void main() {
 
     vec4 Texture = texture(FrameBuffer,Texcoord);
-    /*outColor = color;
-    if(xory ==1)
-    {
-        if(Texture.x<=0.05)
-            outColor = vec4(0,0,1,1);
-        else if(Texture.x>0.05 && Texture.x<=.1)
-            outColor = vec4(.5,.5,1,1);
-        else if(Texture.x>0.1 && Texture.x<=.2)
-            outColor = vec4(1,1,0,1);
-        else if(Texture.x>.2&&Texture.x<=.50)
-            outColor = vec4(0,1,0,1);
-        else if(Texture.x>.5&&Texture.x<=.68)
-            outColor = vec4(.65,.16,.16,1);
-        else if(Texture.x>.68&&Texture.x<=.85)
-            outColor = vec4(.5,.5,.5,1);
-        else if(Texture.x>.85)
-            outColor = vec4(1,1,1,1);
-    }*/
-    outColor=ObjectColor;
+    outColor=Texture;
 }
 
 

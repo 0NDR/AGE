@@ -22,7 +22,7 @@ void Model::processNode(aiNode* node)
         Mesh newMesh;
         newMesh.meshFromAssimp(mesh);
         newMesh.loadTextures(FileDirectory,scene);
-    std::cout<<"next"<<std::endl;
+        newMesh.calculateTangentsBitangents();
         Meshes.push_back(newMesh);
     }
     for(int i=0;i<node->mNumChildren;i++)

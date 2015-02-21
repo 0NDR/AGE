@@ -8,7 +8,7 @@ in vec3 bitangent;
 
 out vec4 VertexPosition;
 out vec2 Texcoord;
-out vec3 Normal,VertexToEye,Tangent,Bitangent;
+out vec3 Normal,Tangent,Texcoord3d;
 out vec4 color;
 
 uniform mat4 model, view, proj;
@@ -17,18 +17,15 @@ uniform vec4 ObjectColor;
 uniform vec4 ObjectDiffuse, ObjectAmbient, ObjectSpecular;
 uniform float time;
 uniform vec3 LightPositions[50];
-
 void main()
 {
      mat3 NormalMatrix = mat3(transpose(inverse(model)));
     Normal = NormalMatrix *normal;
     Tangent = NormalMatrix*tangent;
-    Bitangent = NormalMatrix*bitangent;
     VertexPosition= (model*vec4(position, 1.0 ));
-    VertexToEye = -vec3(view*VertexPosition);
-    vec3 LightToVertex = vec3(LightPositions[0]-VertexPosition.xyz);
     color = ObjectColor;
     Texcoord = texcoord;
+    Texcoord3d = position;
     gl_Position = proj*view*VertexPosition;
 
 }

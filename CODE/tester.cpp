@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
     TextureBase Textures[6];
     std::string directions[] = {"RIGHT","LEFT","UP","DOWN","BACK","FORWARD"};
 
-    gradient.setUniformLocation(1,"CubeTexture");
+    gradient.setUniformLocation(10,"CubeTexture");
     gradient.setTarget(GL_TEXTURE_CUBE_MAP);
     gradient.setTextureProperty(GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);
     gradient.setTextureProperty(GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
@@ -366,12 +366,12 @@ int main(int argc, char *argv[])
     ntext.setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
     ntext.setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
     ntext.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-    ntext.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/out.png");
+    ntext.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/normal_map.jpg");
     ntext.loadTexture();
 
     ManualMesh.meshFromVector(verts,inds);
     spmesh = RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/cube.obj");
-    tMesh =  RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/nanosuit/nanosuit.obj");
+    tMesh =  RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/largeplane/largeplane.obj");
     Shader2D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader2D.fs"),GL_FRAGMENT_SHADER);
     Shader2D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader2D.vs"),GL_VERTEX_SHADER);
     Shader2D.LinkProgram();
@@ -379,6 +379,7 @@ int main(int argc, char *argv[])
 
     Shader3D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader3D.fs"),GL_FRAGMENT_SHADER);
     Shader3D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/Shader3D.vs"),GL_VERTEX_SHADER);
+    Shader3D.LoadAndCompileShader(GLOBAL::textFileRead("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/GeomTest.gs"),GL_GEOMETRY_SHADER);
     Shader3D.LinkProgram();
     Shader3D.Activate();
 
@@ -389,12 +390,24 @@ int main(int argc, char *argv[])
     WorldPlane.setMesh(spmesh);
 
     Light WorldLight("Light");
-    WorldLight.DiffuseColor = glm::vec4(0.1,0.1,0.1,1);
-    WorldLight.SpecularColor = glm::vec4(0.5,0.5,0.5,1);
+    WorldLight.DiffuseColor = glm::vec4(.2,.2,.2,1);
+    WorldLight.SpecularColor = glm::vec4(.5,.5,.5,1);
     WorldLight.AmbientColor = glm::vec4(0.1,0.1,0.1,1);
     WorldLight.LinearAttenuation = .01;
     WorldLight.SpotCutoff = 180;
-    WorldLight.Position = glm::vec3(-.5477*10,.5328*10,-.8366*10);
+    WorldLight.Position = glm::vec3(0,30,0);
+    WorldLight.Scale = glm::vec3(1,1,1);
+
+    gameObject LightGoy(&container,"Light's bulb");
+    LightGoy.setMesh(tMesh);
+    LightGoy.Scale = glm::vec3(15,15,15);
+    LightGoy.Position = glm::vec3(0,0,0);
+
+    gameObject LightGoy2(&WorldLight,"Light's bulb");
+    LightGoy2.setMesh(spmesh);
+    LightGoy2.setWindow(&CombCont);
+    LightGoy2.Scale = glm::vec3(1,1,1);
+    LightGoy2.Position = glm::vec3(0,0,0);
 
     gameObject::RegisterLua(l.getState());
     Model::RegisterLua(l.getState());
@@ -446,7 +459,7 @@ int main(int argc, char *argv[])
         ALfloat camorie[] = {lookAt.x,lookAt.y,lookAt.z, up.x,up.y,up.z};
         alListenerfv(AL_POSITION,campos);
         alListenerfv(AL_ORIENTATION,camorie);
-        WorldLight.setPosition(-position);
+        WorldLight.setPosition(glm::vec3(cosf((float)GLOBAL::frameCount/100)*10,30,sinf((float)GLOBAL::frameCount/100)*10));
         WorldPlane.setPosition(-position);
         float ax,ay,az;
         alGetSource3f(source.getSource(),AL_POSITION,&ax,&ay,&az);
@@ -456,6 +469,7 @@ int main(int argc, char *argv[])
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"LightsOn"),0);
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"ZeroOn"),0);
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram, "isCube" ),1);
+        glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram, "time" ),GLOBAL::frameCount);
         ntext.Activate();
         ntext.bindTexture();
         ntext.AttachToShader(&Shader3D);
@@ -473,6 +487,10 @@ int main(int argc, char *argv[])
         normalTexture.AttachToShader(&Shader3D);
         glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"LightsOn"),1);
         WorldLight.Render(&Shader3D);
+        glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"ZeroOn"),1);
+        LightGoy2.Render(&Shader3D);
+        LightGoy2.setWindow(&CombCont);
+        glUniform1i(glGetUniformLocation(Shader3D.ShaderProgram,"ZeroOn"),0);
         renderGoy(&container,&Shader3D);
 
         CombCont.Swap();

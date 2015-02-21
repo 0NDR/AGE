@@ -105,10 +105,8 @@ void Mesh::loadTextures(std::string pathToDirectory, aiScene *scene)
         // Diffuse: texture_diffuseN
         // Specular: texture_specularN
         // Normal: texture_normalN
-
-        loadTexturesFromMaterial(material,aiTextureType_DIFFUSE,pathToDirectory);
-        loadTexturesFromMaterial(material,aiTextureType_SPECULAR,pathToDirectory);
-        loadTexturesFromMaterial(material,aiTextureType_DISPLACEMENT,pathToDirectory);
+        for(int i = 0x1;i<0xC;i+=0x1)
+            loadTexturesFromMaterial(material,(aiTextureType)i,pathToDirectory);
     }
 }
 void Mesh::loadTexturesFromMaterial(aiMaterial* mat, aiTextureType type, std::string dir)
@@ -138,9 +136,11 @@ void Mesh::loadTexturesFromMaterial(aiMaterial* mat, aiTextureType type, std::st
         case aiTextureType_SPECULAR:
             TextureName = MESH_SpecularTexturePrefix;
             break;
-        case aiTextureType_DISPLACEMENT:
+        case aiTextureType_HEIGHT:
             TextureName = MESH_NormalTexturePrefix;
             break;
+        case aiTextureType_DISPLACEMENT:
+            TextureName = MESH_HeightTexturePrefix;
         }
         std::stringstream s;
         s<<TextureName<<i;
@@ -186,4 +186,33 @@ void Mesh::drawToShader(Shader* shdr)
     glDisableVertexAttribArray(nA);
     glDisableVertexAttribArray(teA);
     glDisableVertexAttribArray(taA);
+}
+
+void Mesh::calculateTangentsBitangents()
+{
+    for (unsigned int i = 0 ; i < Indices.size() ; i += 3) {
+        Vertex& v0 = VertexData[Indices[i]];
+        Vertex& v1 = VertexData[Indices[i+1]];
+        Vertex& v2 = VertexData[Indices[i+2]];
+
+        glm::vec3 Edge1 = v1.Position - v0.Position;
+        glm::vec3 Edge2 = v2.Position - v0.Position;
+
+        float DeltaU1 = v1.TextureCoords.x - v0.TextureCoords.x;
+        float DeltaV1 = v1.TextureCoords.y - v0.TextureCoords.y;
+        float DeltaU2 = v2.TextureCoords.x - v0.TextureCoords.x;
+        float DeltaV2 = v2.TextureCoords.y - v0.TextureCoords.y;
+
+        float f = 1.0f / (DeltaU1 * DeltaV2 - DeltaU2 * DeltaV1);
+
+        glm::vec3 Tangent;
+
+        Tangent.x = f * (DeltaV2 * Edge1.x - DeltaV1 * Edge2.x);
+        Tangent.y = f * (DeltaV2 * Edge1.y - DeltaV1 * Edge2.y);
+        Tangent.z = f * (DeltaV2 * Edge1.z - DeltaV1 * Edge2.z);
+
+        v0.Tangent += Tangent;
+        v1.Tangent += Tangent;
+        v2.Tangent += Tangent;
+    }
 }
