@@ -38,7 +38,7 @@ void Light::Render()
         CAttenT[i] = Lights[i]->ConstantAttenuation;
         LAttenT[i] = Lights[i]->LinearAttenuation;
         QAttenT[i] = Lights[i]->QuadraticAttenuation;
-        SCUTT[i] = Lights[i]->SpotCutoff;
+        SCUTT[i] = cosf(DegreesToRadians(Lights[i]->SpotCutoff)); ///Convert from degrees into cos of the angle, for faster pixel shader
         SEXPT[i] = Lights[i]->SpotExponent;
     }
     glUniform1i(glGetUniformLocation(ShaderProgram,"lightCount"),Lights.size());
@@ -51,5 +51,5 @@ void Light::Render()
     glUniform1fv(glGetUniformLocation(ShaderProgram,"LightLinearAttenuations"),Lights.size(),LAttenT);
     glUniform1fv(glGetUniformLocation(ShaderProgram,"LightQuadraticAttenuations"),Lights.size(),QAttenT);
     glUniform1fv(glGetUniformLocation(ShaderProgram,"LightCutoffs"),Lights.size(),SCUTT);
-    glUniform1fv(glGetUniformLocation(ShaderProgram,"LightSpotExponent"),Lights.size(),SEXPT);
+    glUniform1fv(glGetUniformLocation(ShaderProgram,"LightSpotExponents"),Lights.size(),SEXPT);
 }

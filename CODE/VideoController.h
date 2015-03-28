@@ -48,6 +48,7 @@ class Window ///Class to manage a window
         VideoMode getFullscreenMode();          ///<Determine the fullscreen mode. must be either Windowed(0), Fullscreen(SDL_WINDOW_FULLSCREEN), or WindowedFullscreen (SDL_WINDOW_FULLSCREEN_DESKTOP)
         Uint32 getWindowFlags();                ///<Returns the window's flags
         Uint32 getID();                         ///<Returns the window's ID
+        float getAspectRatio();
         glm::vec2 getSize();                    ///<Get the size of the window, in pixels.
 
         static std::string TypeID() {return "VideoController";}

@@ -15,6 +15,9 @@ class Object3D: public Renderable///Base class for 3D rendering
         void setRotation(glm::vec3 rot); ///<Sets the rotation portion of the transformation matrix
         void setPosition(glm::vec3 pos); ///<Sets the position portion of the transformation matrix
         void setScale(glm::vec3 pos);    ///<Sets the scaling portion of the transformation matrix
+        void setRotation(float x, float y, float z); ///<Sets the rotation portion of the transformation matrix
+        void setPosition(float x, float y, float z); ///<Sets the position portion of the transformation matrix
+        void setScale(float x, float y, float z);    ///<Sets the scaling portion of the transformation matrix
         glm::vec3 *getPosition();
         glm::vec3 *getRotation();
         glm::vec3 *getScale();

@@ -69,7 +69,7 @@ namespace GLOBAL
     float pi = 3.1415926575859;
     float Framerate = 0;
     float FramerateLock = 60;
-    int frameCount = 0;
+    long long frameCount = 0;
     Uint32 BULLET_CONTACT_CREATED;
     Uint32 BULLET_CONTACT_DESTROYED;
     float Distance(float X1, float X2, float Y1, float Y2,float Z1,float Z2){

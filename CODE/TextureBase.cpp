@@ -4,8 +4,6 @@ void TextureBase::loadFromFile(std::string filePath)
 {
     LoadedImage = IMG_Load((char *)(filePath).c_str());
     if(LoadedImage == NULL){std::cout<<"ERROR: file not found"<<std::endl;}
-    rawData =LoadedImage->pixels;
-    rawLength =sizeof(rawData);
     DisplaySurface = LoadedImage;
 }
 void TextureBase::loadFromArray(std::vector<char> img)
@@ -22,8 +20,6 @@ void TextureBase::loadFromArray(char* buff, int sizeofBuff)
     {
         printf("IMG_Load_RW: %s\n", IMG_GetError());
     }
-    rawData = LoadedImage->pixels;
-    rawLength =sizeof(rawData);
     DisplaySurface = LoadedImage;
 
 }
@@ -67,11 +63,9 @@ void TextureBase::loadFromArray(void* buff, int w, int h, int bpp)
 
     //if(LoadedImage!=NULL){SDL_FreeSurface(LoadedImage);}
     LoadedImage = SDL_CreateRGBSurfaceFrom(buff,w,h,bpp*8,w*bpp,0x000000ff,0x0000ff00,0x00ff0000,0xff000000);
-    rawData =LoadedImage->pixels;
-    rawLength =sizeof(rawData);
     DisplaySurface = LoadedImage;
 }
-void TextureBase::saveImageToFile(std::string path)
+void TextureBase::saveToFile(std::string path)
 {
     IMG_SavePNG(DisplaySurface,path.c_str());
 }

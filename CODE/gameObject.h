@@ -13,10 +13,10 @@ class gameObject: public Object3D   ///Extended class for rendering 3D meshs
         Model *renderMesh;
         glTexture *renderTexture = NULL;
     public:
-        gameObject(){addNewType();}
-        gameObject(Object* parent): Object3D(parent){addNewType();}
-        gameObject(std::string name): Object3D(name){addNewType();}
-        gameObject(Object* parent, std::string name): Object3D(parent,name){addNewType();}
+        gameObject(){addNewType();TextureScale=glm::vec2(1,1);}
+        gameObject(Object* parent): Object3D(parent){addNewType();TextureScale=glm::vec2(1,1);}
+        gameObject(std::string name): Object3D(name){addNewType();TextureScale=glm::vec2(1,1);}
+        gameObject(Object* parent, std::string name): Object3D(parent,name){addNewType();TextureScale=glm::vec2(1,1);}
 
         virtual void Update();
         virtual void Render();
@@ -29,8 +29,11 @@ class gameObject: public Object3D   ///Extended class for rendering 3D meshs
         void setTexture(glTexture *texture); ///<Sets the gameObject's texture
 
         void setColor(glm::vec4 pos); ///<Sets the gameObject's color
+        void setTextureScale(glm::vec2 scale);
         glm::vec4 *getColor();
+        glm::vec2 *getTextureScale();
         glm::vec4 Color;              ///<The set color
+        glm::vec2 TextureScale;
 
 
         virtual int push(lua_State *l)

@@ -2,12 +2,6 @@
 #define RESOURCE_FACTORY_INCLUDED
 
 #include "Resource.h"
-#include "Mesh.h"
-#include "Model.h"
-#include "Shader.h"
-#include "TextureBase.h"
-#include "glTexture.h"
-#include "LuaScript.h"
 
 
 struct resourceHolder
@@ -30,21 +24,23 @@ class ResourceFactory
             for(int i=0;i<loadedFiles.size();i++)
             {
                 if(loadedFiles[i].path == filepath)
+                {
+                    std::cout<<"already loaded"<<std::endl;
                     return dynamic_cast<t*>(loadedFiles[i].o);
+                }
             }
             t* returnVal = new t;
             returnVal->t::loadFromFile(filepath);
             loadedFiles.push_back(resourceHolder(filepath,returnVal));
             return dynamic_cast<t*>(returnVal);
         }
-
+        int loadFromFileLua(lua_State *l);
         static std::string TypeID(){return "ResourceFactory";}
         static void RegisterLua(lua_State* l, bool InitParentType = false)
         {
             GLOBAL::addRegister(ResourceFactory::TypeID(),l);
             luabridge::getGlobalNamespace(l).beginClass<ResourceFactory>(TypeID().c_str())
-                                                    .addFunction("loadModel", &ResourceFactory::loadFromFile<Model>)
-                                                    .addFunction("loadTexture", &ResourceFactory::loadFromFile<TextureBase>)
+                                                    .addCFunction("loadFromFile", &ResourceFactory::loadFromFileLua)
                                             .endClass();
         }
 

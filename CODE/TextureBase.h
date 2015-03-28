@@ -4,8 +4,6 @@
 class TextureBase: public Resource///Base class for loading textures
 {
     protected:
-        void* rawData;
-        int rawLength;
         GLenum Format;
         GLint BytesPerPixel;
         SDL_Surface *DisplaySurface;
@@ -15,12 +13,12 @@ class TextureBase: public Resource///Base class for loading textures
         TextureBase(Object* parent): Resource(parent){addNewType();Format=0; BytesPerPixel = -1;}
         TextureBase(std::string name): Resource(name){addNewType();Format=0; BytesPerPixel = -1;}
         TextureBase(Object* parent, std::string name): Resource(parent,name){addNewType();Format=0; BytesPerPixel = -1;}
-        ~TextureBase(){SDL_FreeSurface(DisplaySurface);SDL_FreeSurface(LoadedImage);delete[] rawData;}
+        ~TextureBase(){SDL_FreeSurface(DisplaySurface);SDL_FreeSurface(LoadedImage);}
         void loadFromFile(std::string filePath);///<Load from a file
         void loadFromArray(std::vector<char> img);///<load from a vector of chars
         void loadFromArray(char* buff, int sizeofBuff);///<load from a char buffer
         void loadFromArray(void* buff, int w, int h, int bpp);///<load from a char buffer with specific qualities
-        void saveImageToFile(std::string path); ///<save the image to a file
+        void saveToFile(std::string path); ///<save the image to a file
 
         GLenum getFormat();                                 ///<Returns the pixel format in: GL_RGB, GL_RGBA, GL_BGR, GL_BGRA, GL_RG, and GL_RED
         GLint getBytesPerPixel();                           ///<Returns the number of bytes per pixel
@@ -41,7 +39,7 @@ class TextureBase: public Resource///Base class for loading textures
             luabridge::getGlobalNamespace(l).deriveClass<TextureBase,Resource>(TypeID().c_str())
                                                 .addConstructor<void (*)(std::string)>()
                                                 .addFunction("loadFromFile",&TextureBase::loadFromFile)
-                                                .addFunction("saveImageToFile",&TextureBase::saveImageToFile)
+                                                .addFunction("saveToFile",&TextureBase::saveToFile)
                                             .endClass();
     } ///<Adds the class definition to a given lua state
 };

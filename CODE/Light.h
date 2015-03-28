@@ -5,12 +5,23 @@
 class Light: public Object3D ///Class to manage OpenGL lights
 {
     private:
-
+        void setDefaults()
+        {
+            Direction = glm::vec3(0,0,0);
+            DiffuseColor = glm::vec4(0,0,0,1);
+            AmbientColor = glm::vec4(0,0,0,1);
+            SpecularColor = glm::vec4(0,0,0,1);
+            ConstantAttenuation = 1;
+            LinearAttenuation = 0;
+            QuadraticAttenuation = 0;
+            SpotCutoff = 180;
+            SpotExponent = 0;
+        }
     public:
-        Light(){addNewType();}
-        Light(Object* parent): Object3D(parent){addNewType();}
-        Light(std::string name): Object3D(name){addNewType();}
-        Light(Object* parent, std::string name): Object3D(parent,name){addNewType();}
+        Light(){addNewType();setDefaults();}
+        Light(Object* parent): Object3D(parent){addNewType();setDefaults();}
+        Light(std::string name): Object3D(name){addNewType();setDefaults();}
+        Light(Object* parent, std::string name): Object3D(parent,name){addNewType();setDefaults();}
         virtual void Render();
         virtual void Render(Shader* shad)
         {

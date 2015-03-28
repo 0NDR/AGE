@@ -3,16 +3,15 @@
 #include "Resource.h"
 #include "glTexture.h"
 #include "Shader.h"
-
-const std::string MESH_DiffuseTexturePrefix = "Texture_Diffuse";
-const std::string MESH_NormalTexturePrefix = "Texture_Normal";
-const std::string MESH_HeightTexturePrefix = "Texture_Height";
-const std::string  MESH_SpecularTexturePrefix = "Texture_Specular";
+extern  std::string MTLTextureTypeNames[0xC];
 struct Vertex{
     glm::vec3 Position;
     glm::vec3 Normal;
     glm::vec2 TextureCoords;
     glm::vec3 Tangent;
+    glm::vec3 BiTangent;
+    glm::vec3 tan1;
+    glm::vec3 tan2;
     Vertex(){}
     Vertex(float Posx,float Posy,float Posz,float Normx,float Normy,float Normz,float TexX,float TexY){ //good old TexX
         Position = glm::vec3(Posx,Posy,Posz);
@@ -22,7 +21,7 @@ struct Vertex{
 };
 class Mesh: public Resource///<Basic class handling vertex, index, and texture data
 {
-    private:
+    protected:
         aiMesh *AssimpMesh;
         GLuint VertexBuffer;
         GLuint IndexBuffer;
@@ -38,12 +37,13 @@ class Mesh: public Resource///<Basic class handling vertex, index, and texture d
 
         aiMesh* getMesh();///<Returns the aiScene form of the mesh, holding all the mesh data
         void loadFromFile(std::string filepath){;}///<Load the mesh from a file with default parameters
+        void saveToFile(std::string filepath);
         void meshFromAssimp(aiMesh* m);
         void meshFromVector(std::vector<Vertex> Verts);///<load the mesh from a series of verticies
         void meshFromVector(std::vector<Vertex> Verts, std::vector<unsigned int> inds); ///load the mesh from a series of verticies and indices
         void loadTextures(std::string pathToDirectory, aiScene *scene);
         void loadTexturesFromMaterial(aiMaterial* mat, aiTextureType type, std::string dir);
-        void drawToShader(Shader* shdr);
+        virtual void drawToShader(Shader* shdr);
 
         void calculateTangentsBitangents();
         static std::string TypeID() {return "Mesh";}///< Returns Mesh's class name
@@ -56,6 +56,10 @@ class Mesh: public Resource///<Basic class handling vertex, index, and texture d
             if(!GLOBAL::isRegistered(Resource::TypeID(),l))
             {
                 Resource::RegisterLua(l);
+            }
+            if(!GLOBAL::isRegistered(glTexture::TypeID(),l))
+            {
+                glTexture::RegisterLua(l);
             }
             GLOBAL::addRegister(Mesh::TypeID(),l);
             luabridge::getGlobalNamespace(l).deriveClass<Mesh,Resource>(TypeID().c_str())

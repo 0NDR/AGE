@@ -7,7 +7,7 @@ Window::Window(SDL_Window* newScreen)
 }
 Window::Window()
 {
-    if(SDL_WasInit(SDL_INIT_EVERYTHING)&SDL_INIT_VIDEO==0)
+    if(SDL_WasInit(SDL_INIT_VIDEO)!=0)
     {
         SDL_Init(SDL_INIT_VIDEO);
     }
@@ -20,7 +20,7 @@ Window::Window()
 }
 Window::Window(int x, int y)
 {
-    if(SDL_WasInit(SDL_INIT_EVERYTHING)&SDL_INIT_VIDEO==0)
+    if(SDL_WasInit(SDL_INIT_VIDEO)!=0)
     {
         SDL_Init(SDL_INIT_VIDEO);
     }
@@ -34,7 +34,7 @@ Window::Window(int x, int y)
 
 Window::Window(int x, int y, int sx, int sy)
 {
-    if(SDL_WasInit(SDL_INIT_EVERYTHING)&SDL_INIT_VIDEO==0)
+    if(SDL_WasInit(SDL_INIT_VIDEO)!=0)
     {
         SDL_Init(SDL_INIT_VIDEO);
     }
@@ -47,7 +47,7 @@ Window::Window(int x, int y, int sx, int sy)
 }
 Window::Window(int x, int y, int sx, int sy, Uint32 flags)
 {
-    if(SDL_WasInit(SDL_INIT_EVERYTHING)&SDL_INIT_VIDEO==0)
+    if(SDL_WasInit(SDL_INIT_VIDEO)!=0)
     {
         SDL_Init(SDL_INIT_VIDEO);
     }
@@ -184,5 +184,9 @@ SDL_Window* Window::getWindow()
 {
     return SDLScreen;
 }
-
+float Window::getAspectRatio()
+{
+    glm::vec2 Resolution = getSize();
+    return Resolution.x/Resolution.y;
+}
 

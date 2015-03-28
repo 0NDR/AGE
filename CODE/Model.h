@@ -7,7 +7,7 @@ class Model: public Resource///<Basic class for loading *.obj, *.3ds, *.dae, *.b
         aiScene *scene;
         std::string FileDirectory;
     public:
-        std::vector<Mesh> Meshes;///<Vector holding the individual GL buffers for each mesh part
+        std::vector<Mesh*> Meshes;///<Vector holding the individual GL buffers for each mesh part
 
         Model(){addNewType();}
         Model(Object* parent): Resource(parent){addNewType();}
@@ -17,14 +17,15 @@ class Model: public Resource///<Basic class for loading *.obj, *.3ds, *.dae, *.b
         aiScene* getScene();///<Returns the aiScene form of the mesh, holding all the mesh data
         void loadFromFile(std::string filepath){loadFromFileParameters(filepath);}///<Load the mesh from a file with default parameters
         void loadFromFileParameters(std::string filePath,unsigned int Flags = aiProcess_GenSmoothNormals | aiProcess_Triangulate  |aiProcess_FlipUVs|aiProcess_CalcTangentSpace);///<Load the mesh from a file path, with parameteres
+        void loadFromAssimp(aiScene* nscene);
         void processNode(aiNode* node);
-        void drawToShader(Shader* shdr);
+        virtual void drawToShader(Shader* shdr);
+        void saveToFile(std::string filepath);
+
         static std::string TypeID() {return "Model";}///< Returns Model's class name
         virtual std::string type() {return "Model";}
         static void RegisterLua(lua_State *l)
         {
-
-
 
             if(!GLOBAL::isRegistered(Mesh::TypeID(),l))
             {

@@ -9,6 +9,22 @@ void Object3D::setPosition(glm::vec3 pos)
 {
     Position = pos;
 }
+void Object3D::setScale(glm::vec3 pos)
+{
+    Scale = pos;
+}
+void Object3D::setRotation(float x, float y, float z)
+{
+    Rotation = glm::vec3(x,y,z);
+}
+void Object3D::setPosition(float x, float y, float z)
+{
+    Position = glm::vec3(x,y,z);
+}
+void Object3D::setScale(float x, float y, float z)
+{
+    Scale = glm::vec3(x,y,z);
+}
 glm::vec3 *Object3D::getPosition()
 {
     return &Position;
@@ -17,10 +33,7 @@ glm::vec3 *Object3D::getRotation()
 {
     return &Rotation;
 }
-void Object3D::setScale(glm::vec3 pos)
-{
-    Scale = pos;
-}
+
 glm::vec3 *Object3D::getScale()
 {
     return &Scale;

@@ -62,7 +62,7 @@ namespace GLOBAL
    extern float pi;
    extern float Framerate;
    extern float FramerateLock;
-   extern int frameCount;
+   extern long long frameCount;
     struct ObjectCollisionPointer
     {
         void* FirstPointer;

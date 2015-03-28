@@ -18,8 +18,7 @@ void gameObject::Render()
             glUniform1i(glGetUniformLocation(ShaderProgram, "ObjectTexture" ),0);
         }
         glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "model" ),1,GL_FALSE,glm::value_ptr(getAbsoluteMatrix()));
-
-        glUniform3f(glGetUniformLocation(ShaderProgram, "scale"),Scale.x,Scale.y,Scale.z);
+        glUniform2f(glGetUniformLocation(ShaderProgram, "TextureScaling"),TextureScale.x,TextureScale.y);
         renderMesh->drawToShader(renderShader);
 }
 void gameObject::Update()
@@ -35,7 +34,14 @@ void gameObject::setTexture(glTexture *texture)
 {
     renderTexture = texture;
 }
-
+void gameObject::setTextureScale(glm::vec2 scale)
+{
+    TextureScale = scale;
+}
+glm::vec2 *gameObject::getTextureScale()
+{
+    return &TextureScale;
+}
 void gameObject::setColor(glm::vec4 pos)
 {
     Color = pos;

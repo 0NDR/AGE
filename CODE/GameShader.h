@@ -24,7 +24,6 @@ class GameShader: public Shader ///Expanded shader class for extra control
     void setViewMatrix(glm::mat4 view);                                                     ///<Set the view matrix
     void setProjectionMatrix(float FOV, float AspectRatio, float NearClip, float FarClip);  ///<Set the projection matrix based on inputs
     void setViewMatrix(glm::vec3 pos, glm::vec3 rotation);                                  ///<Set view matrix based on inputs
-
     glm::mat4 getProjectionMatrix(){return ProjectionMatrix;}                               ///<Get the projection matrix
     glm::mat4 getViewMatrix(){return ViewMatrix;}                                           ///<Get the view matrix
     glm::vec3 getViewPosition(){return viewPos;}                                            ///<Get the position component of the view matrix

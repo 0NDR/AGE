@@ -2,6 +2,7 @@
 #define glTexture_H_INCLUDED
 #include "TextureBase.h"
 #include "Shader.h"
+
 class glTexture: public virtual TextureBase     ///Base class for managing Gl textures
 {
     private:
@@ -9,15 +10,17 @@ class glTexture: public virtual TextureBase     ///Base class for managing Gl te
         GLuint Texture;
         GLuint UniformIndex;
         std::string UniformLocation;
+        aiTextureType Type;
     public:
-        glTexture(){addNewType(); TextureUnit=0; Format=0; Texture = 0; BytesPerPixel = -1;}
-        glTexture(Object* parent): TextureBase(parent){addNewType(); TextureUnit=0;  Format=0; Texture = 0; BytesPerPixel = -1;}
-        glTexture(std::string name): TextureBase(name){addNewType(); TextureUnit=0;  Format=0; Texture = 0; BytesPerPixel = -1;}
-        glTexture(Object* parent, std::string name): TextureBase(parent,name){addNewType(); TextureUnit=0;  Format=0; Texture = 0; BytesPerPixel = -1;}
+        glTexture(){addNewType(); TextureUnit=0; Type=aiTextureType_NONE; Format=0; Texture = 0; BytesPerPixel = -1;}
+        glTexture(Object* parent): TextureBase(parent){addNewType(); Type=aiTextureType_NONE; TextureUnit=0;  Format=0; Texture = 0; BytesPerPixel = -1;}
+        glTexture(std::string name): TextureBase(name){addNewType(); Type=aiTextureType_NONE; TextureUnit=0;  Format=0; Texture = 0; BytesPerPixel = -1;}
+        glTexture(Object* parent, std::string name): TextureBase(parent,name){addNewType(); Type=aiTextureType_NONE; TextureUnit=0;  Format=0; Texture = 0; BytesPerPixel = -1;}
 
         GLenum getTextureUnit();                            ///<Returns which texture channel it is currently using, default GL_TEXTURE0
         GLuint getTexture();                                ///<Returns the gl texture ID
         std::string getUniformLocation();                   ///<Returns the location associated with the texture
+        aiTextureType getTextureType();
 
         void bindTexture();                                 ///<Bind this texture
         void Activate();                                    ///<Activates the texture channel
@@ -25,12 +28,15 @@ class glTexture: public virtual TextureBase     ///Base class for managing Gl te
         void AttachToShader(Shader* Shader);                ///<Attach the texture to the shader
         void setTarget(GLenum TextureTarget);               ///<Set target i spose
         void setTextureProperty(GLenum pname, GLint param); ///<Set a property for the texture
+        void setTextureType(aiTextureType type);
+
         void loadTexture();                                 ///<Upload the texture to the GPU and get it ready for use
         GLenum Target;
 
 
         static std::string TypeID() {return "glTexture";}
         virtual std::string type() {return "glTexture";}
+        static std::string TypeUniforms[0xC];
         static void RegisterLua(lua_State *l)
         {
 
@@ -70,6 +76,4 @@ class glTexture: public virtual TextureBase     ///Base class for managing Gl te
             luabridge::setGlobal(l,GL_TEXTURE_CUBE_MAP,"GL_TEXTURE_CUBE_MAP");
        }
 };
-
-
 #endif // glTexture_H_INCLUDED

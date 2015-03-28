@@ -153,11 +153,19 @@ int runThread(void* ptr)
 {
     LuaScript *theScript = (LuaScript*)ptr;
     luabridge::setGlobal(theScript->getState(),theScript,"this");
-    lua_resume(theScript->getState(),0,0);
-    theScript->status = lua_tostring(theScript->getState(),-1);
+    if(theScript->isFile)
+    {
+        if(luaL_loadfile(theScript->getState(), theScript->source.c_str())|| lua_pcall(theScript->getState(),0,0,0))
+            theScript->status = lua_tostring(theScript->getState(),-1);
+    }
+    else
+    {
+        if(luaL_dostring(theScript->getState(), theScript->source.c_str()))
+            theScript->status =  lua_tostring(theScript->getState(),-1);
+    }
     std::cout<<theScript->status;
-
 }
+
 void LuaScript::RegisterLua(lua_State *l)
 {
 
