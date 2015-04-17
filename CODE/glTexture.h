@@ -26,6 +26,7 @@ class glTexture: public virtual TextureBase     ///Base class for managing Gl te
         void Activate();                                    ///<Activates the texture channel
         void setUniformLocation(GLuint ind, std::string  loc);   ///<Set the uniform location & number
         void AttachToShader(Shader* Shader);                ///<Attach the texture to the shader
+        void AttachAs(Shader* Shaderprog,std::string tName, int tIndex = 0); ///<Convenience function
         void setTarget(GLenum TextureTarget);               ///<Set target i spose
         void setTextureProperty(GLenum pname, GLint param); ///<Set a property for the texture
         void setTextureType(aiTextureType type);

@@ -20,20 +20,22 @@ glm::vec2 Object2D::getSizeRelative()
 
 glm::mat4 Object2D::getAbsoluteMatrix()
 {
-    glm::mat4 scaltrans, postrans, rottrans, parenttrans;
-    glm::vec2 AbsolutePosition = getPositionRelative();
-    glm::vec2 AbsoluteScale = getSizeRelative();
+    glm::mat4 ObjectScaling, ObjectTranslation, ObjectRotation, parenttrans;
+    glm::vec2 AbsolutePosition = getPositionRelative()*renderWindow->getSize()+glm::vec2(Position.y,Position.w);
+    glm::vec2 AbsoluteScale = getSizeRelative()       +glm::vec2(Size.y,Size.w)/renderWindow->getSize();
     float AbsoluteRotation = getRotation();
+    if(AbsoluteRotation!=0)
+    {
+        ObjectRotation = glm::rotate(glm::mat4(1.0f),AbsoluteRotation,glm::vec3(0,0,1));
+    }
+    ObjectScaling =  glm::scale(glm::mat4(1.0f),glm::vec3(AbsoluteScale,1));
+    ObjectTranslation = glm::translate(glm::mat4(1.0f),glm::vec3(AbsolutePosition,0));
+    glm::mat4 windowScaling = glm::scale(glm::mat4(1.0f),glm::vec3(renderWindow->getSize(),1.f));
     if(Parent->isType(Object2D::TypeID())&&getParent()!=this)
     {
         Object2D* UIParent = (Object2D*)Parent;
-        parenttrans = UIParent->getAbsoluteMatrix();
+        parenttrans = UIParent->getAbsoluteMatrix()*glm::inverse(windowScaling);
     }
-    if(AbsoluteRotation!=0)
-    {
-        rottrans = glm::rotate(rottrans,AbsoluteRotation,glm::vec3(0,0,1));
-    }
-    scaltrans =  glm::scale(scaltrans,glm::vec3(AbsoluteScale+(glm::vec2(Size.y,Size.w)/renderWindow->getSize()),0));
-    postrans = glm::translate(postrans,glm::vec3(AbsolutePosition+(glm::vec2(Position.y,Position.w)/renderWindow->getSize()),0));
-    return parenttrans*(postrans*(scaltrans)*rottrans);
+    glm::mat4 parentRotScale = glm::mat4(glm::mat3(parenttrans));
+    return (parenttrans*ObjectTranslation*(glm::inverse(parentRotScale)*ObjectRotation*parentRotScale*ObjectScaling)*windowScaling);
 }

@@ -2,12 +2,12 @@
 #define UI_H_INCLUDED
 #include "Object2D.h"
 #include "Shader.h"
-#include "Mesh.h"
-class UI: public Object2D
+#include "Model.h"
+class UI: public Object2D  ///Default class for handling 2D rendering, UIs lie along the XZ-plane.
 {
     protected:
 
-        Mesh* renderMesh;
+        Model* renderMesh;
     public:
         UI(){addNewType();}
         UI(Object* parent): Object2D(parent){addNewType();}
@@ -21,7 +21,7 @@ class UI: public Object2D
         glm::vec4 Color;       ///<Color data
 
 
-        void setMesh(Mesh* newMesh); ///< Sets the mesh for use when rendering
+        void setMesh(Model* newMesh); ///< Sets the mesh for use when rendering
         void Render(Shader* shad)
         {
             setShader(shad);
