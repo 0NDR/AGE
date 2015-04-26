@@ -1,5 +1,5 @@
 #include "GameShader.h"
-
+glm::vec3 GameShader::getViewPosition(){return -glm::vec3(ViewMatrix[3])*glm::mat3(ViewMatrix);}
 void GameShader::setViewMatrix(glm::mat4 view)
 {
     Activate();

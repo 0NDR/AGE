@@ -1,5 +1,6 @@
 #startVertex
 #version 150
+#extension GL_ARB_explicit_attrib_location : enable
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texcoord;
@@ -295,7 +296,7 @@ vec4 getLights(vec2 texcoord, sampler2D norm,mat3 tbnMatrix){
 
 void main() {
 
-    outColor = vec4(1.f,1.f,1.f,1.f);
+    outColor = vec4(1.f,1.f,1.f,1f);
 
     vec2 DisplacedTexCoord = vOutput.Texcoord*TextureScaling;
     //DisplacedTexCoord = parallaxMapping(vMat.tbn,Texture_Normal0,DisplacedTexCoord,vec2(.001,0));
@@ -319,9 +320,11 @@ void main() {
         }
         else
         {
-            outColor *= vec4(texture2D(Texture_Diffuse0,DisplacedTexCoord).xyz,1.f);
+            outColor *= texture2D(Texture_Diffuse0,DisplacedTexCoord);
         }
     }
+    if(outColor.a <.4 )
+        discard;
     //if(ColorOn)
     //outColor = vec4(1,1,1,1);
 }

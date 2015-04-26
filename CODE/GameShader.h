@@ -7,7 +7,6 @@ class GameShader: public Shader ///Expanded shader class for extra control
     private:
         glm::mat4 ProjectionMatrix;
         glm::mat4 ViewMatrix;
-        glm::vec3 viewPos;
         glm::vec3 viewRot;
         float FOV;
         float AspectRation;
@@ -26,7 +25,7 @@ class GameShader: public Shader ///Expanded shader class for extra control
     void setViewMatrix(glm::vec3 pos, glm::vec3 rotation);                                  ///<Set view matrix based on inputs
     glm::mat4 getProjectionMatrix(){return ProjectionMatrix;}                               ///<Get the projection matrix
     glm::mat4 getViewMatrix(){return ViewMatrix;}                                           ///<Get the view matrix
-    glm::vec3 getViewPosition(){return viewPos;}                                            ///<Get the position component of the view matrix
+    glm::vec3 getViewPosition();                                            ///<Get the position component of the view matrix
     glm::vec3 getViewRotation(){return viewRot;}                                            ///<Get the rotation component of the view matrix
     float getFOV(){return FOV;}                                                             ///<Get the Field of View
     float getAspectRatio(){return AspectRation;}                                            ///<Get the projection aspect ratio

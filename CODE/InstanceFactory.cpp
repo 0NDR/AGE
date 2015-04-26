@@ -20,7 +20,7 @@ int InstanceFactory::newObject(lua_State *l)
     else if(Argument == gameObject::TypeID())
     {
         gameObject* nO = new gameObject();
-        nO->Scale = glm::vec3(1,1,1);
+        nO->Size = glm::vec3(1,1,1);
         nO->Color = glm::vec4(1,1,1,1);
         luabridge::push(l,nO);
         return 1;
@@ -71,7 +71,6 @@ int InstanceFactory::newObject(lua_State *l)
         Billboard *nO = new Billboard();
         nO->Position = glm::vec3(0,10,0);
         nO->Size = glm::vec4(0,64,0,64);
-        nO->Color = glm::vec4(1,0,0,1);
         luabridge::push(l,nO);
         return 1;
     }
