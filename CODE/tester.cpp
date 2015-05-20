@@ -4,15 +4,21 @@
 #include "CombinedController.h"
 #include "GameShader.h"
 #include "gameObject.h"
+#include "Light.h"
 #include "Billboard.h"
 #include "UI.h"
 #include "ResourceFactory.h"
 #include "glTexture.h"
+#include "NoiseCreator.h"
 #include "Model.h"
+#include "FrameBuffer.h"
 glm::vec3 position = glm::vec3(0,-2,0),look = glm::vec3(0,0,0);
 float speed=.1;
-bool locked, warped,running=true;
+bool locked, warped,running=true,isgrasson;
 CombinedController *CombCont;
+glTexture mtext,transitionTexture;
+NoiseCreator N;
+FrameBuffer F;
 void key(SDL_Event e)
 {
 
@@ -36,6 +42,38 @@ void key(SDL_Event e)
             break;
         case SDLK_q:
             position.y+=1.f;
+            break;
+        case SDLK_z:
+            position.y-=1.f;
+            break;
+        case SDLK_p:
+            {
+            isgrasson=true;
+            std::vector<char> pixels;
+            int w=1000,h=1000;
+            for(int i=0;i<w;i++)
+            {
+                for(int j=0;j<h;j++)
+                {
+                    float distanceGradient = std::min((glm::distance(glm::vec2(i,j),glm::vec2(w/2,h/2))*.0001),1.0);
+                    float noiseGradient = (N.octaveNoise(8,.5,.001,glm::vec2(i,j))+1.0)/2.0;
+                    float amt = std::max((noiseGradient-distanceGradient)*1.5-.5,0.0);
+                    pixels.push_back(255*amt);
+                    pixels.push_back(255*amt);
+                    pixels.push_back(255*amt);
+                }
+            }
+            mtext.loadFromArray(&pixels[0],w,h,3);
+            mtext.setTarget(GL_TEXTURE_2D);
+            mtext.setTextureProperty(GL_TEXTURE_WRAP_S,GL_REPEAT);
+            mtext.setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
+            mtext.setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+            mtext.setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+            mtext.loadTexture();
+            break;
+            }
+        case SDLK_o:
+            isgrasson=false;
             break;
         case SDLK_ESCAPE:
             running=!running;
@@ -69,12 +107,16 @@ void resizeViewport(SDL_Event e)
 {
 
     if(e.window.event==SDL_WINDOWEVENT_RESIZED)
+    {
         glViewport(0,0,e.window.data1,e.window.data2);
+        F.CreateFrameBuffer(e.window.data1,e.window.data2);
+    }
 }
 int main(int argc, char *argv[])
 {
     GLOBAL::Init();
     SDL_Init(SDL_INIT_EVERYTHING);
+    IMG_Init(IMG_INIT_JPG|IMG_INIT_PNG);
     CombCont = new CombinedController(100,100,512,512,SDL_WINDOW_OPENGL| SDL_WINDOW_RESIZABLE);
 
     CombCont->addEvent(key,SDL_KEYDOWN);
@@ -83,34 +125,34 @@ int main(int argc, char *argv[])
 
     GameShader RenderShader, UIShader;
     ResourceFactory RF;
-    Model *MarbleModel, *RectangleUIModel;
-    glTexture* textures[6];
-    gameObject floor;
+    Model *MarbleModel, *RectangleUIModel,*grassModel;
+    glTexture *groundA,*groundB;
+    gameObject floor, grass;
+    Light bulb;
     UI displayUI, billboardUI;
     Billboard testBillboard;
-    MarbleModel = RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/MarblePlane/marbleplane.obj");
+    groundB=RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/beachsandnormal.png");
+    groundA = RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/beachsanddiffuse.png");
+    MarbleModel = RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/GrassPlane/marbleplane.obj");
     RectangleUIModel = RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/plane.obj");
-    for(int i=0;i<6;i++)
-    {
-        std::stringstream s;
-        s<<"C:/Users/Nick/Dropbox/Apps/AGE/Resources/grass/grass"<<i+1<<".png";
-        textures[i] = RF.loadFromFile<glTexture>(s.str());
-        textures[i]->setTarget(GL_TEXTURE_2D);
-        textures[i]->setTextureProperty(GL_TEXTURE_WRAP_S,GL_CLAMP);
-        textures[i]->setTextureProperty(GL_TEXTURE_WRAP_T,GL_CLAMP);
-        textures[i]->setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-        textures[i]->setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-        textures[i]->loadTexture();
-    }
+    grassModel = RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/grass/grass.obj");
     UIShader.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/MultiShader2D.glsl");
     RenderShader.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/MultiShader.glsl");
     RenderShader.LinkProgram();
     UIShader.LinkProgram();
 
-
-
-
-
+    groundA->setTarget(GL_TEXTURE_2D);
+    groundA->setTextureProperty(GL_TEXTURE_WRAP_S,GL_REPEAT);
+    groundA->setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
+    groundA->setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    groundA->setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    groundA->loadTexture();
+    groundB->setTarget(GL_TEXTURE_2D);
+    groundB->setTextureProperty(GL_TEXTURE_WRAP_S,GL_REPEAT);
+    groundB->setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
+    groundB->setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    groundB->setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    groundB->loadTexture();
 
     testBillboard.setWindow(CombCont);
     testBillboard.setShader(&RenderShader);
@@ -118,66 +160,98 @@ int main(int argc, char *argv[])
     testBillboard.setSize(glm::vec4(1,0,1,0));
     testBillboard.setLockAxis(glm::vec3(0,1,0));
     testBillboard.setRotation(0);
+
+    grass.setShader(&RenderShader);
+    grass.setSize(glm::vec3(1,1,1));
+    grass.TextureScale = glm::vec2(1,1);
+    grass.setMesh(grassModel);
     floor.setWindow(CombCont);
     floor.setMesh(MarbleModel);
     floor.setSize(glm::vec3(10,1,10));
     floor.setPosition(glm::vec3(0,0,0));
     floor.TextureScale = glm::vec2(10,10);
+
     billboardUI.setParent(&testBillboard);
     billboardUI.setWindow(CombCont);
-    billboardUI.setMesh(RectangleUIModel);
+    billboardUI.setMesh(grassModel);
     billboardUI.setColor(glm::vec4(1,1,0,.2));
     billboardUI.setSize(glm::vec4(1,0,1,0));
     billboardUI.setPosition(glm::vec4(0,0,0,0));
 
+    bulb.Position = glm::vec3(0,1,0);
+    bulb.DiffuseColor=glm::vec4(1,1,1,1);
+    bulb.SpecularColor=glm::vec4(2,2,2,1);
+    bulb.AmbientColor=glm::vec4(.1,.1,.1,1);
+    bulb.LinearAttenuation = .5;
+    bulb.SpotCutoff = 180;
+    bulb.SpotExponent = 1;
+
     displayUI.setWindow(CombCont);
     displayUI.setMesh(RectangleUIModel);
     displayUI.setColor(glm::vec4(1,1,0,.2));
-    displayUI.setSize(glm::vec4(.5,0,.5,0));
+    displayUI.setSize(glm::vec4(1,0,1,0));
     displayUI.setPosition(glm::vec4(0,0,0,0));
     float secondsPassed = 1;
     Uint64 t = SDL_GetPerformanceCounter();
+    std::vector<Object3D*> sorted;
+    int w=2;
+    for(int i=0;i<w;i++)
+    {
+
+        Object3D *g = new Object3D;
+        g->setSize(glm::vec3(1,1,1));
+        g->setPosition(i,1,0);
+        sorted.push_back(g);
+    }
     while(running)
     {
         CombCont->CheckKeys();
+        F.Activate();
         RenderShader.Activate();
         glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
         glClearColor(0,0,0,1);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_DEPTH_TEST);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         RenderShader.setProjectionMatrix(90.0,CombCont->getAspectRatio(),.01,1000);
         RenderShader.setViewMatrix(position,look);
-        RenderShader.setUniform1i("LightsOn",0);
+        RenderShader.setUniform1i("LightsOn",1);
         RenderShader.setUniform1i("TextureOn",1);
+        RenderShader.setUniform3f("viewpos",-position);
         RenderShader.setUniform1i("ZeroOn",0);
+        RenderShader.setUniform1i("grass",isgrasson);
+        RenderShader.setUniform1i("time",SDL_GetTicks());
+        mtext.AttachAs(&RenderShader,"gtext",2);
+        groundA->AttachAs(&RenderShader,"grassTexture",4);
+        groundB->AttachAs(&RenderShader,"grassHeight",5);
+        bulb.Render(&RenderShader);
         floor.Render(&RenderShader);
+        RenderShader.setUniform1i("grass",0);
         RANDOM_SEED(10);
-        //std::map<float, Billboard*> sorted;
         RenderShader.setUniform2f("TextureScaling",glm::vec2(1,1));
-        for(int i=0;i<1000;i++)
+        for(int i=0;i<sorted.size();i++)
         {
-            testBillboard.setWindow(CombCont);
-            testBillboard.setShader(&RenderShader);
-            testBillboard.setSize(glm::vec4(1.0,0,1.0,0)*RANDOM_INT(0,100)/100.f);
-            testBillboard.setLockAxis(glm::vec3(0,1.0,0));
-            testBillboard.setPosition(RANDOM_INT(-100,100)/10.f,testBillboard.Size.z,RANDOM_INT(-100,100)/10.f);
-            textures[RANDOM_INT(0,5)]->AttachAs(&UIShader,"Texture_Diffuse0",0);
-            billboardUI.Render(&RenderShader);
+            Object3D *guy = sorted[i];
+            grass.setPosition(guy->Position);
+            grass.setSize(guy->Size);
+            glEnable(GL_BLEND);
+            grass.Render(&RenderShader);
+            //grass.Render(&RenderShader);
         }
         //--2D--
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
         UIShader.Activate();
         UIShader.setProjectionMatrix(glm::ortho(-CombCont->getSize().x,CombCont->getSize().x,-CombCont->getSize().y,CombCont->getSize().y));
-        glClear(GL_DEPTH_BUFFER_BIT);
         glDisable(GL_DEPTH_TEST);
-        UIShader.setUniform4f("color",glm::vec4(1.f,1.f,1.f,.2f));
-        glClearColor(0,0,0,1);
+        UIShader.setUniform4f("color",glm::vec4(1.f,1.f,.2f,1.0f));
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set the blend function
-        //displayUI.Render(&UIShader);
-
-
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D,F.texColorBuffer);
+        glUniform1i(glGetUniformLocation(UIShader.ShaderProgram,"disptext"),2);
+        displayUI.Render(&UIShader);
         CombCont->Swap();
+
+
         secondsPassed = ((float)(SDL_GetPerformanceCounter()-t)/((float)SDL_GetPerformanceFrequency()));
         if(secondsPassed<1.0/300.0)
         {
@@ -185,7 +259,10 @@ int main(int argc, char *argv[])
         }
         secondsPassed = ((float)(SDL_GetPerformanceCounter()-t)/((float)SDL_GetPerformanceFrequency()));
         t = SDL_GetPerformanceCounter();
+        Lights.clear();
     }
+    IMG_Quit();
+    SDL_Quit();
     return 0;
 }
 

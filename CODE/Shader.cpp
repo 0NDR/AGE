@@ -81,14 +81,21 @@ void Shader::LinkProgram()
     glLinkProgram(ShaderProgram);
 
     GLint Status;
-    glGetShaderiv(ShaderProgram,GL_LINK_STATUS, &Status);
+    glGetProgramiv(ShaderProgram,GL_LINK_STATUS, &Status);
     if(Status == GL_FALSE){
         char buffer[bufferlength];
-        glGetShaderInfoLog( ShaderProgram, bufferlength, NULL, buffer );
+        glGetProgramInfoLog( ShaderProgram, bufferlength, NULL, buffer );
         std::cout<<" LINK ERROR: "<<buffer<<std::endl;
     }
 
     glValidateProgram(ShaderProgram);
+    glGetProgramiv(ShaderProgram,GL_VALIDATE_STATUS,&Status);
+    if(Status==GL_FALSE)
+    {
+        char buffer[bufferlength];
+        glGetProgramInfoLog( ShaderProgram, bufferlength, NULL, buffer );
+        std::cout<<" VALIDATE ERROR: "<<buffer<<std::endl;
+    }
 }
 void Shader::Activate()
 {

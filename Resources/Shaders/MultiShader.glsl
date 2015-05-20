@@ -1,5 +1,5 @@
 #startVertex
-#version 150
+#version 330 core
 #extension GL_ARB_explicit_attrib_location : enable
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
@@ -37,8 +37,10 @@ uniform mat4 model, view, proj;
 uniform mat4 Bones[MAX_BONES];
 uniform vec4 ObjectColor;
 uniform vec4 ObjectDiffuse, ObjectAmbient, ObjectSpecular;
-uniform float time;
-uniform vec3 LightPositions[50];
+uniform int time;
+uniform sampler2D Texture_Diffuse0,grassHeight,gtext,grassTexture,Texture_Specular0,Texture_Normal0,Texture_Height0;
+
+uniform vec3 LightPositions[3];
 void main()
 {
     mat4 BoneTransform=mat4(0.f);//mat4(1.0f);
@@ -76,7 +78,7 @@ void main()
 
 {
 #startGe1ometry
-#version 150
+#version 330 core
 layout(triangles) in;
 
 layout(line_strip, max_vertices=6) out;
@@ -141,7 +143,7 @@ void main()
 }
 {
 #startFragment
-#version 150
+#version 330 core
 #define pi 3.14159265659
 struct Vertex {
     vec4 modelPosition;
@@ -162,15 +164,13 @@ struct Matrices {
     mat3 tbn;
 
 };
-const int lightMax =50;
+const int lightMax =3;
 in Vertex vOutput;
 in Matrices vMat;
 out vec4 outColor;
 uniform sampler2D ObjectTexture;
 uniform samplerCube CubeTexture;
-uniform sampler2D Texture_Diffuse0;
-uniform sampler2D Texture_Specular0;
-uniform sampler2D Texture_Normal0,Texture_Height0;
+uniform sampler2D Texture_Diffuse0,grassHeight,gtext,grassTexture,Texture_Specular0,Texture_Normal0,Texture_Height0;
 uniform vec3 viewpos;
 uniform vec2 TextureScaling;
 //uniform vec4 ObjectDiffuse, ObjectAmbient, ObjectSpecular, GlobalAmbient;
@@ -178,7 +178,7 @@ vec4 ObjectDiffuse=vec4(1,1,1,1);
 vec4 ObjectAmbient=vec4(1,1,1,1);
 vec4 ObjectSpecular=vec4(1,1,1,1);
 vec4 GlobalAmbient=vec4(0,0,0,1);
-int Shininess = 256;
+int Shininess = 8;
 uniform float LightCutoffs[lightMax];
 uniform float LightSpotExponents[lightMax];
 uniform vec4 LightAmbients[lightMax];
@@ -192,7 +192,7 @@ uniform float LightQuadraticAttenuations[lightMax];
 uniform int lightCount;
 uniform int time;
 uniform int Unicolors;
-uniform bool LightsOn, TextureOn, ColorOn, ZeroOn,isCube,NormalOn;
+uniform bool LightsOn, TextureOn, ColorOn, ZeroOn,isCube,NormalOn,grass;
 
 vec4 getLightsStupid()
 {
@@ -294,13 +294,26 @@ vec4 getLights(vec2 texcoord, sampler2D norm,mat3 tbnMatrix){
     return vec4(FINALLIGHT.xyz,1.f);
 }
 
+vec3 blend(in vec4 texture1, in float a1, in vec4 texture2,in float a2)
+{
+    float depth = 0.2;
+    float ma = max(texture1.a + a1, texture2.a + a2) - depth;
+
+    float b1 = max(texture1.a + a1 - ma, 0);
+    float b2 = max(texture2.a + a2 - ma, 0);
+
+    return vec3((texture1.rgb * b1 + texture2.rgb * b2) / (b1 + b2));
+}
 void main() {
 
-    outColor = vec4(1.f,1.f,1.f,1f);
+    outColor = vec4(1.f,1.f,1.f,1.f);
 
     vec2 DisplacedTexCoord = vOutput.Texcoord*TextureScaling;
     //DisplacedTexCoord = parallaxMapping(vMat.tbn,Texture_Normal0,DisplacedTexCoord,vec2(.001,0));
-
+    float factorr = min(4.0*texture(gtext,vOutput.Texcoord).r,1.0);
+    float factorg = min(4.0*texture(gtext,vOutput.Texcoord).g,1.0);
+    vec4 other = texture2D(grassTexture,DisplacedTexCoord);
+    vec4 one = texture2D(grassHeight,DisplacedTexCoord);
     if(LightsOn)
     {
         if(NormalOn)
@@ -309,7 +322,14 @@ void main() {
         }
         else
         {
-            outColor *= getLights(DisplacedTexCoord,Texture_Normal0,vMat.tbn);
+            if(grass)
+            {
+                outColor *= vec4(blend(vec4(getLights(DisplacedTexCoord,Texture_Normal0,vMat.tbn).rgb,texture(Texture_Normal0,DisplacedTexCoord).a),1.0-factorr,vec4(getLights(DisplacedTexCoord,grassHeight,vMat.tbn).rgb,one.a),factorr),1);
+            }
+            else
+            {
+                outColor *= getLights(DisplacedTexCoord,Texture_Normal0,vMat.tbn);
+            }
         }
     }
     if(TextureOn)
@@ -320,13 +340,22 @@ void main() {
         }
         else
         {
-            outColor *= texture2D(Texture_Diffuse0,DisplacedTexCoord);
+            if(grass)
+            {
+                /*float terrain = texture(transitionTexture,vec3(vOutput.Texcoord,1.0)).r;
+                if(factorf>.5)*/
+                vec4 regular=vec4(texture2D(Texture_Diffuse0,DisplacedTexCoord).rgb,texture(Texture_Normal0,DisplacedTexCoord).a);
+                outColor *= vec4(vec3(blend(regular,1.0-factorr,vec4(other.rgb,one.a),factorr)),1);//
+            }
+            else
+            {
+                outColor *=texture2D(Texture_Diffuse0,DisplacedTexCoord);
+            }
         }
     }
-    if(outColor.a <.4 )
-        discard;
     //if(ColorOn)
-    //outColor = vec4(1,1,1,1);
+   /* if(outColor.a<.5 && ALPHADIS)
+        discard;*/
 }
 #endFragment
 }

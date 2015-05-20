@@ -54,9 +54,10 @@ void glTexture::loadTexture()
     getFormat();
     Activate();
     bindTexture();
+    glEnable(Target);
     glTexImage2D( Target, 0, BytesPerPixel, DisplaySurface->w, DisplaySurface->h, 0, Format, GL_UNSIGNED_BYTE, DisplaySurface->pixels );
     glGenerateMipmap(Target);
-    //gluBuild2DMipmaps(Target,Format, DisplaySurface->w, DisplaySurface->h, Format, GL_UNSIGNED_BYTE, DisplaySurface->pixels);
+    glBindTexture(Target,0);
 }
 void glTexture::AttachToShader(Shader* Shaderprog)
 {
@@ -64,8 +65,8 @@ void glTexture::AttachToShader(Shader* Shaderprog)
 }
 void glTexture::AttachAs(Shader* Shaderprog,std::string tName, int tIndex)
 {
+    setUniformLocation(tIndex,tName);
     Activate();
     bindTexture();
-    setUniformLocation(tIndex,tName);
     AttachToShader(Shaderprog);
 }

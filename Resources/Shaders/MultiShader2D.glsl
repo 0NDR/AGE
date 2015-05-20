@@ -30,7 +30,7 @@ void main()
 	uniform vec4 color;
     uniform sampler2D disptext;
 	void main() {
-		outColor = texture(disptext,Texcoord)*color;
+		outColor = texture(disptext,vec2(Texcoord.x,-Texcoord.y));
 	}
 
 #endFragment
