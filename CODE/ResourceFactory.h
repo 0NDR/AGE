@@ -19,21 +19,7 @@ class ResourceFactory
     private:
         std::vector<resourceHolder> loadedFiles;
     public:
-        template<class t> t* loadFromFile(std::string filepath)
-        {
-            for(int i=0;i<loadedFiles.size();i++)
-            {
-                if(loadedFiles[i].path == filepath)
-                {
-                    std::cout<<"already loaded"<<std::endl;
-                    return dynamic_cast<t*>(loadedFiles[i].o);
-                }
-            }
-            t* returnVal = new t;
-            returnVal->t::loadFromFile(filepath);
-            loadedFiles.push_back(resourceHolder(filepath,returnVal));
-            return dynamic_cast<t*>(returnVal);
-        }
+        template<class t> t* loadFromFile(std::string filepath);
         int loadFromFileLua(lua_State *l);
         static std::string TypeID(){return "ResourceFactory";}
         static void RegisterLua(lua_State* l, bool InitParentType = false)

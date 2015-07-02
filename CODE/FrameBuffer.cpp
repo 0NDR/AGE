@@ -5,16 +5,23 @@ void FrameBuffer::CreateFrameBuffer(glm::vec2 newSize)
 
     Activate();
     Resolution = newSize;
-    glGenTextures(1,&texColorBuffer);
     glGenTextures(1,&texDepthBuffer);
-    glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+    glGenTextures(1,&texColorBuffer2);
+    glGenTextures(1,&texColorBuffer);
     glGenRenderbuffers(1,&renderBufferObject);
     glBindRenderbuffer(GL_RENDERBUFFER, renderBufferObject);
 
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,Resolution.x,Resolution.y,0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
+    glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,Resolution.x,Resolution.y,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer,0);
+
+    glBindTexture(GL_TEXTURE_2D, texColorBuffer2);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,Resolution.x,Resolution.y,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, texColorBuffer2,0);
 
     glBindTexture(GL_TEXTURE_2D, texDepthBuffer);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -28,6 +35,7 @@ void FrameBuffer::Delete()
 {
     glDeleteFramebuffers(1, &frameBuffer);
     glDeleteTextures(1, &texColorBuffer);
+    glDeleteTextures(1, &texColorBuffer2);
     glDeleteTextures(1,&texDepthBuffer);
     glDeleteRenderbuffers(1, &renderBufferObject);
 }
@@ -38,6 +46,10 @@ void FrameBuffer::Activate()
         glGenFramebuffers(1,&frameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 }
+void FrameBuffer::Deactivate()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
 void FrameBuffer::setResolution(glm::vec2 newSize)
 {
@@ -46,8 +58,11 @@ void FrameBuffer::setResolution(glm::vec2 newSize)
     glBindTexture(GL_TEXTURE_2D, texDepthBuffer);
     glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT32,Resolution.x,Resolution.y,0,GL_DEPTH_COMPONENT,GL_FLOAT,0);
 
+    glBindTexture(GL_TEXTURE_2D, texColorBuffer2);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,Resolution.x,Resolution.y,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
+
     glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,Resolution.x,Resolution.y,0,GL_RGB,GL_UNSIGNED_BYTE,NULL);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,Resolution.x,Resolution.y,0,GL_RGBA,GL_UNSIGNED_BYTE,NULL);
 
 }
 void FrameBuffer::setResolution(int x, int y)

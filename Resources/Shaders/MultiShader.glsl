@@ -14,6 +14,7 @@ struct Vertex {
     vec4 modelPosition;
     vec4 worldPosition;
     vec4 cameraPosition;
+    vec4 finalPosition;
     vec2 Texcoord;
     vec3 Normal;
     vec3 Tangent;
@@ -67,8 +68,8 @@ void main()
     vOutput.cameraPosition= (vMat.view*vOutput.worldPosition);
     vOutput.Color = vec4(1,1,1,1);
     vOutput.Texcoord = texcoord.xy;
-    gl_Position = vMat.proj*vOutput.cameraPosition;//proj*view*vOutput.worldPosition;
-
+    vOutput.finalPosition = vMat.proj*vOutput.cameraPosition;//proj*view*vOutput.worldPosition;
+    gl_Position=vOutput.finalPosition;
 }
 
 #endVertex
@@ -88,6 +89,8 @@ float normal_length = .2;
 struct Vertex {
     vec4 modelPosition;
     vec4 worldPosition;
+    vec4 cameraPosition;
+    vec4 finalPosition;
     vec2 Texcoord;
     vec3 Normal;
     vec3 Tangent;
@@ -149,6 +152,7 @@ struct Vertex {
     vec4 modelPosition;
     vec4 worldPosition;
     vec4 cameraPosition;
+    vec4 finalPosition;
     vec2 Texcoord;
     vec3 Normal;
     vec3 Tangent;
@@ -167,12 +171,13 @@ struct Matrices {
 const int lightMax =3;
 in Vertex vOutput;
 in Matrices vMat;
-out vec4 outColor;
+out vec4 outColor,outColor1;
 uniform sampler2D ObjectTexture;
 uniform samplerCube CubeTexture;
 uniform sampler2D Texture_Diffuse0,grassHeight,gtext,grassTexture,Texture_Specular0,Texture_Normal0,Texture_Height0;
 uniform vec3 viewpos;
 uniform vec2 TextureScaling;
+uniform vec4 ObjectColor;
 //uniform vec4 ObjectDiffuse, ObjectAmbient, ObjectSpecular, GlobalAmbient;
 vec4 ObjectDiffuse=vec4(1,1,1,1);
 vec4 ObjectAmbient=vec4(1,1,1,1);
@@ -192,7 +197,7 @@ uniform float LightQuadraticAttenuations[lightMax];
 uniform int lightCount;
 uniform int time;
 uniform int Unicolors;
-uniform bool LightsOn, TextureOn, ColorOn, ZeroOn,isCube,NormalOn,grass;
+uniform bool LightsOn, TextureOn, ColorOn, ZeroOn,isCube,NormalOn,grass, transparency;
 
 vec4 getLightsStupid()
 {
@@ -306,8 +311,12 @@ vec3 blend(in vec4 texture1, in float a1, in vec4 texture2,in float a2)
 }
 void main() {
 
-    outColor = vec4(1.f,1.f,1.f,1.f);
 
+    vec4 FinalColor = ObjectColor;
+    if(FinalColor == vec4(0,0,0,0))
+    {
+        FinalColor = vec4(1,1,1,1);
+    }
     vec2 DisplacedTexCoord = vOutput.Texcoord*TextureScaling;
     //DisplacedTexCoord = parallaxMapping(vMat.tbn,Texture_Normal0,DisplacedTexCoord,vec2(.001,0));
     float factorr = min(4.0*texture(gtext,vOutput.Texcoord).r,1.0);
@@ -318,17 +327,17 @@ void main() {
     {
         if(NormalOn)
         {
-            outColor *= getLightsStupid();
+            FinalColor *= getLightsStupid();
         }
         else
         {
             if(grass)
             {
-                outColor *= vec4(blend(vec4(getLights(DisplacedTexCoord,Texture_Normal0,vMat.tbn).rgb,texture(Texture_Normal0,DisplacedTexCoord).a),1.0-factorr,vec4(getLights(DisplacedTexCoord,grassHeight,vMat.tbn).rgb,one.a),factorr),1);
+                FinalColor *= vec4(blend(vec4(getLights(DisplacedTexCoord,Texture_Normal0,vMat.tbn).rgb,texture(Texture_Normal0,DisplacedTexCoord).a),1.0-factorr,vec4(getLights(DisplacedTexCoord,grassHeight,vMat.tbn).rgb,one.a),factorr),1);
             }
             else
             {
-                outColor *= getLights(DisplacedTexCoord,Texture_Normal0,vMat.tbn);
+                FinalColor *= getLights(DisplacedTexCoord,Texture_Normal0,vMat.tbn);
             }
         }
     }
@@ -336,7 +345,7 @@ void main() {
     {
         if(isCube)
         {
-            //outColor *= vec4(textureCube(CubeTexture,vOutput.modelPosition.xyz).xyz,1.f);
+            //FinalColor *= vec4(textureCube(CubeTexture,vOutput.modelPosition.xyz).xyz,1.f);
         }
         else
         {
@@ -345,13 +354,26 @@ void main() {
                 /*float terrain = texture(transitionTexture,vec3(vOutput.Texcoord,1.0)).r;
                 if(factorf>.5)*/
                 vec4 regular=vec4(texture2D(Texture_Diffuse0,DisplacedTexCoord).rgb,texture(Texture_Normal0,DisplacedTexCoord).a);
-                outColor *= vec4(vec3(blend(regular,1.0-factorr,vec4(other.rgb,one.a),factorr)),1);//
+                FinalColor *= vec4(vec3(blend(regular,1.0-factorr,vec4(other.rgb,one.a),factorr)),1);//
             }
             else
             {
-                outColor *=texture2D(Texture_Diffuse0,DisplacedTexCoord);
+                FinalColor *=texture2D(Texture_Diffuse0,DisplacedTexCoord);
             }
         }
+    }
+
+    float z = length(vOutput.cameraPosition);
+    outColor = vec4(FinalColor.r,FinalColor.g,FinalColor.b,FinalColor.a);
+    if(transparency)
+    {
+         float weight =
+                    max(min(1.0, max(max(FinalColor.r, FinalColor.g), FinalColor.b) * FinalColor.a), FinalColor.a) *
+                    clamp(0.03 / (1e-5 + pow(z / 200, 4.0)), 1e-2, 3e3);
+        outColor =vec4(FinalColor.rgb*FinalColor.a,FinalColor.a)*weight/5000.0;
+        outColor1 = vec4(FinalColor.a);
+
+
     }
     //if(ColorOn)
    /* if(outColor.a<.5 && ALPHADIS)

@@ -29,9 +29,14 @@ void main()
 	out vec4 outColor;
 	uniform vec4 color;
     uniform sampler2D disptext;
+    uniform sampler2D disptext2;
 	void main() {
-		outColor = texture(disptext,vec2(Texcoord.x,-Texcoord.y));
-	}
+        vec4 accum =   texelFetch(disptext, ivec2(gl_FragCoord.xy), 0);
+        float reveal = texelFetch(disptext2, ivec2(gl_FragCoord.xy), 0).r;
+        outColor =vec4(accum.rgb / max(accum.a, 1e-5), reveal);
+        if(accum.a==reveal)
+            outColor=vec4(1,1,1,1);
+    }
 
 #endFragment
 }

@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     ResourceFactory RF;
     Model *MarbleModel, *RectangleUIModel,*grassModel;
     glTexture *groundA,*groundB;
-    gameObject floor, grass;
+    gameObject floor,floors[3], grass;
     Light bulb;
     UI displayUI, billboardUI;
     Billboard testBillboard;
@@ -185,7 +185,24 @@ int main(int argc, char *argv[])
     bulb.LinearAttenuation = .5;
     bulb.SpotCutoff = 180;
     bulb.SpotExponent = 1;
-
+    for(int i=0;i<3;i++)
+    {
+        floors[i].Position = glm::vec3(0,.25,i+5);
+        floors[i].Size = glm::vec3(.5,.5,0);
+        switch(i)
+        {
+            case 0:
+                floors[i].setColor(glm::vec4(0,0,1,.75));
+                break;
+            case 1:
+                floors[i].setColor(glm::vec4(1,1,0,.75));
+                break;
+            case 2:
+                floors[i].setColor(glm::vec4(1,0,0,.75));
+                break;
+        }
+        floors[i].setMesh(RectangleUIModel);
+    }
     displayUI.setWindow(CombCont);
     displayUI.setMesh(RectangleUIModel);
     displayUI.setColor(glm::vec4(1,1,0,.2));
@@ -194,7 +211,7 @@ int main(int argc, char *argv[])
     float secondsPassed = 1;
     Uint64 t = SDL_GetPerformanceCounter();
     std::vector<Object3D*> sorted;
-    int w=2;
+    int w=1;
     for(int i=0;i<w;i++)
     {
 
@@ -206,48 +223,78 @@ int main(int argc, char *argv[])
     while(running)
     {
         CombCont->CheckKeys();
-        F.Activate();
+        glDepthMask(GL_TRUE);
         RenderShader.Activate();
+        glBindFragDataLocation( RenderShader.ShaderProgram, 0, "outColor" );
+        glBindFragDataLocation( RenderShader.ShaderProgram, 1, "outColor1" );
         glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-        glClearColor(0,0,0,1);
+        glClearColor(0.75,0.75,0.75,1);
         glEnable(GL_DEPTH_TEST);
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_ALPHA_TEST);
+        glDisable(GL_BLEND);
+        glAlphaFunc(GL_EQUAL,1.0);
         RenderShader.setProjectionMatrix(90.0,CombCont->getAspectRatio(),.01,1000);
         RenderShader.setViewMatrix(position,look);
-        RenderShader.setUniform1i("LightsOn",1);
+        RenderShader.setUniform1i("LightsOn",0);
         RenderShader.setUniform1i("TextureOn",1);
         RenderShader.setUniform3f("viewpos",-position);
         RenderShader.setUniform1i("ZeroOn",0);
         RenderShader.setUniform1i("grass",isgrasson);
         RenderShader.setUniform1i("time",SDL_GetTicks());
+        RenderShader.setUniform1i("transparency",0);
         mtext.AttachAs(&RenderShader,"gtext",2);
         groundA->AttachAs(&RenderShader,"grassTexture",4);
         groundB->AttachAs(&RenderShader,"grassHeight",5);
+
+
         bulb.Render(&RenderShader);
         floor.Render(&RenderShader);
-        RenderShader.setUniform1i("grass",0);
-        RANDOM_SEED(10);
-        RenderShader.setUniform2f("TextureScaling",glm::vec2(1,1));
+
+
+
+        F.Activate();
+        glDepthMask(GL_FALSE);
+        glDisable(GL_ALPHA_TEST);
+        GLenum drawbuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        glDrawBuffers(2, drawbuffers);
+        int val[] = {0,0,0,0};
+        float valf[] = {1.f,1.f,1.f,1.f};
+        glClearBufferiv(GL_COLOR,0,val);
+        glClearBufferfv(GL_COLOR,1,valf);
+        RenderShader.setUniform1i("transparency",1);
+        glEnable(GL_BLEND);
+        glBlendFunci(0,GL_ONE,GL_ONE);
+        glBlendFunci(1,GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
         for(int i=0;i<sorted.size();i++)
         {
             Object3D *guy = sorted[i];
             grass.setPosition(guy->Position);
             grass.setSize(guy->Size);
-            glEnable(GL_BLEND);
             grass.Render(&RenderShader);
-            //grass.Render(&RenderShader);
         }
+        RenderShader.setUniform1i("TextureOn",0);
+        for(int i=0;i<3;i++)
+        {
+            floors[i].Render(&RenderShader);
+        }
+        F.Deactivate();
+
         //--2D--
-        glBindFramebuffer(GL_FRAMEBUFFER,0);
         UIShader.Activate();
         UIShader.setProjectionMatrix(glm::ortho(-CombCont->getSize().x,CombCont->getSize().x,-CombCont->getSize().y,CombCont->getSize().y));
         glDisable(GL_DEPTH_TEST);
         UIShader.setUniform4f("color",glm::vec4(1.f,1.f,.2f,1.0f));
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //Set the blend function
+        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA,GL_SRC_ALPHA);
+
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D,F.texColorBuffer);
         glUniform1i(glGetUniformLocation(UIShader.ShaderProgram,"disptext"),2);
+
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D,F.texColorBuffer2);
+        glUniform1i(glGetUniformLocation(UIShader.ShaderProgram,"disptext2"),3);
+
         displayUI.Render(&UIShader);
         CombCont->Swap();
 

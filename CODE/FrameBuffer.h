@@ -10,6 +10,7 @@ class FrameBuffer: public Resource
     public:
     GLuint frameBuffer;
     GLuint texColorBuffer;
+    GLuint texColorBuffer2;
     GLuint texDepthBuffer;
     GLuint renderBufferObject;
     FrameBuffer(){addNewType();frameBuffer=0;texColorBuffer=0;texDepthBuffer=0;renderBufferObject=0;}
@@ -22,6 +23,7 @@ class FrameBuffer: public Resource
     void setResolution(glm::vec2 newSize);
     void setResolution(int x, int y);
     void Activate();
+    void Deactivate();
     void Delete();
 
     TextureBase RenderToTexture();
