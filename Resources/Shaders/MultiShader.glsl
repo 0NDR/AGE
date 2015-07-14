@@ -171,7 +171,8 @@ struct Matrices {
 const int lightMax =3;
 in Vertex vOutput;
 in Matrices vMat;
-out vec4 outColor,outColor1;
+out vec4 outColor;
+out float outColor1;
 uniform sampler2D ObjectTexture;
 uniform samplerCube CubeTexture;
 uniform sampler2D Texture_Diffuse0,grassHeight,gtext,grassTexture,Texture_Specular0,Texture_Normal0,Texture_Height0;
@@ -363,16 +364,15 @@ void main() {
         }
     }
 
-    float z = length(vOutput.cameraPosition);
+    float z = -vOutput.cameraPosition.z;
     outColor = vec4(FinalColor.r,FinalColor.g,FinalColor.b,FinalColor.a);
     if(transparency)
     {
-         float weight =
+         float weight =//pow(z,-5);
                     max(min(1.0, max(max(FinalColor.r, FinalColor.g), FinalColor.b) * FinalColor.a), FinalColor.a) *
-                    clamp(0.03 / (1e-5 + pow(z / 200, 4.0)), 1e-2, 3e3);
-        outColor =vec4(FinalColor.rgb*FinalColor.a,FinalColor.a)*weight/5000.0;
-        outColor1 = vec4(FinalColor.a);
-
+                    max(0.03 / (1e-5 + pow(z / 200, 4.0)), 1e-10);
+        outColor =vec4(FinalColor.rgb*FinalColor.a,FinalColor.a)*weight;
+        outColor1 = FinalColor.a;
 
     }
     //if(ColorOn)
@@ -381,4 +381,13 @@ void main() {
 }
 #endFragment
 }
+/*    float z = -vOutput.cameraPosition.z;
+    outColor = vec4(FinalColor.r,FinalColor.g,FinalColor.b,FinalColor.a);
+    if(transparency)
+    {
+         float weight =pow(FinalColor.a + 0.01f, 4.0f) +
+                   max(0.01f, min(3000.0f, 0.3f / (0.00001f + pow(abs(z) / 200.0f, 4.0f))));
 
+        outColor =vec4(FinalColor.rgb*FinalColor.a*weight,FinalColor.a);
+        outColor1 = vec4(FinalColor.a)*weight;
+*/
