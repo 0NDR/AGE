@@ -34,10 +34,7 @@ void main()
     uniform int isbkg;
     float maxComponent(vec4 a)
     {
-        float b=a.x,c=a.y;
-        if(a.x<a.z)
-            b=a.z;
-        return b>c?b:c;
+        return max(max(a.r, a.g), a.g);
 
     }
 	void main() {
@@ -49,15 +46,19 @@ void main()
         else
         {
             float  revealage = texelFetch(disptext2, C, 0).r;
-            if (revealage <= 0.0) {discard;} //discard if opaque
+            if (revealage ==1.0) {discard;} //discard if opaque
 
             vec4 accum     = texelFetch(disptext, C, 0);
-            vec3 averageColor = accum.rgb / max(accum.a, 1e-10);
+            // Suppress overflow
+            if (isinf(maxComponent(abs(accum)))) {
+                accum.rgb = vec3(accum.a);
+            }
+            vec3 averageColor = accum.rgb / max(accum.a, .00001);
 
 
             // dst' =  (accum.rgb / accum.a) * (1 - revealage) + dst * revealage
-            //outColor = vec4(averageColor,1-revealage);
-            outColor = vec4(accum);
+            outColor = vec4(averageColor,1-revealage);
+            //outColor = vec4(accum.rgb,1.0);
         }
     }
 

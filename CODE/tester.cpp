@@ -19,12 +19,21 @@ CombinedController *CombCont;
 glTexture mtext,transitionTexture;
 NoiseCreator N;
 FrameBuffer Ftransparent,Fopaque;
+GameShader RenderShader, UIShader;
 void key(SDL_Event e)
 {
 
     switch(e.key.keysym.sym)
     {
-
+        case SDLK_r:
+            glUseProgram(0);
+            UIShader.deleteShaderProgram();
+            UIShader.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/MultiShader2D.glsl");
+            UIShader.LinkProgram();
+            RenderShader.deleteShaderProgram();
+            RenderShader.loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Shaders/MultiShader.glsl");
+            RenderShader.LinkProgram();
+            break;
         case SDLK_DOWN:
             position += speed*glm::vec3(cosf(DegreesToRadians(look.y)-GLOBAL::pi/2.0),0,sinf(DegreesToRadians(look.y)-GLOBAL::pi/2.0));
             break;
@@ -109,8 +118,8 @@ void resizeViewport(SDL_Event e)
     if(e.window.event==SDL_WINDOWEVENT_RESIZED)
     {
         glViewport(0,0,e.window.data1,e.window.data2);
-        Ftransparent.CreateFrameBuffer(e.window.data1,e.window.data2);
-        Fopaque.CreateFrameBuffer(e.window.data1,e.window.data2);
+        Ftransparent.setResolution(e.window.data1,e.window.data2);
+        Fopaque.setResolution(e.window.data1,e.window.data2);
     }
 }
 int main(int argc, char *argv[])
@@ -119,19 +128,21 @@ int main(int argc, char *argv[])
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_JPG|IMG_INIT_PNG);
     CombCont = new CombinedController(100,100,512,512,SDL_WINDOW_OPENGL| SDL_WINDOW_RESIZABLE);
+    Ftransparent.CreateFrameBuffer(512,512);
+    Fopaque.CreateFrameBuffer(512,512);
 
     CombCont->addEvent(key,SDL_KEYDOWN);
     CombCont->addEvent(resizeViewport,SDL_WINDOWEVENT);
     CombCont->addEvent(mouseMoved,SDL_MOUSEMOTION);
 
-    GameShader RenderShader, UIShader;
     ResourceFactory RF;
     Model *MarbleModel, *RectangleUIModel,*grassModel;
-    glTexture *groundA,*groundB;
-    gameObject floor,floors[3], grass;
+    glTexture *groundA,*groundB,*Smoke;
+    gameObject floor,floors[50], grass;
     Light bulb;
     UI displayUI, billboardUI;
     Billboard testBillboard;
+    Smoke=RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Smoke2.png");
     groundB=RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/beachsandnormal.png");
     groundA = RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/beachsanddiffuse.png");
     MarbleModel = RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/GrassPlane/marbleplane.obj");
@@ -142,6 +153,12 @@ int main(int argc, char *argv[])
     RenderShader.LinkProgram();
     UIShader.LinkProgram();
 
+    Smoke->setTarget(GL_TEXTURE_2D);
+    Smoke->setTextureProperty(GL_TEXTURE_WRAP_S,GL_REPEAT);
+    Smoke->setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
+    Smoke->setTextureProperty(GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    Smoke->setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    Smoke->loadTexture();
     groundA->setTarget(GL_TEXTURE_2D);
     groundA->setTextureProperty(GL_TEXTURE_WRAP_S,GL_REPEAT);
     groundA->setTextureProperty(GL_TEXTURE_WRAP_T,GL_REPEAT);
@@ -186,23 +203,14 @@ int main(int argc, char *argv[])
     bulb.LinearAttenuation = .5;
     bulb.SpotCutoff = 180;
     bulb.SpotExponent = 1;
-    for(int i=0;i<3;i++)
+    for(int i=0;i<50;i++)
     {
-        floors[i].Position = glm::vec3(0,.5,i+5);
+        floors[i].setParent(&testBillboard);
+        floors[i].Position = glm::vec3((float)RANDOM_INT(-100,100)/50.f,.5,(float)RANDOM_INT(-100,100)/50.f);
         floors[i].Size = glm::vec3(.5,.5,0);
-        switch(i)
-        {
-            case 0:
-                floors[i].setColor(glm::vec4(0,0,1,.75));
-                break;
-            case 1:
-                floors[i].setColor(glm::vec4(0,1,0,.75));
-                break;
-            case 2:
-                floors[i].setColor(glm::vec4(1,0,0,.75));
-                break;
-        }
+        floors[i].Rotation = glm::vec3(0,RANDOM_INT(0,360),0);
         floors[i].setMesh(RectangleUIModel);
+        floors[i].setTexture(Smoke);
     }
     displayUI.setWindow(CombCont);
     displayUI.setMesh(RectangleUIModel);
@@ -211,16 +219,7 @@ int main(int argc, char *argv[])
     displayUI.setPosition(glm::vec4(0,0,0,0));
     float secondsPassed = 1;
     Uint64 t = SDL_GetPerformanceCounter();
-    std::vector<Object3D*> sorted;
-    int w=1;
-    for(int i=0;i<w;i++)
-    {
 
-        Object3D *g = new Object3D;
-        g->setSize(glm::vec3(1,1,1));
-        g->setPosition(i,1,0);
-        sorted.push_back(g);
-    }
     while(running)
     {
         CombCont->CheckKeys();
@@ -252,13 +251,7 @@ int main(int argc, char *argv[])
         bulb.Render(&RenderShader);
         floor.Render(&RenderShader);
         RenderShader.setUniform1i("grass",0);
-        for(int i=0;i<sorted.size();i++)
-        {
-            Object3D *guy = sorted[i];
-            grass.setPosition(guy->Position);
-            grass.setSize(guy->Size);
-            grass.Render(&RenderShader);
-        }
+
         Fopaque.Deactivate();
         //glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
         //glBindFramebuffer(GL_DRAW_FRAMEBUFFER, F.frameBuffer);
@@ -279,15 +272,9 @@ int main(int argc, char *argv[])
         RenderShader.setUniform1i("transparency",1);
         glBlendFunci(0,GL_ONE,GL_ONE);
         glBlendFunci(1,GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-        for(int i=0;i<sorted.size();i++)
-        {
-            Object3D *guy = sorted[i];
-            grass.setPosition(guy->Position);
-            grass.setSize(guy->Size);
-            grass.Render(&RenderShader);
-        }
-        RenderShader.setUniform1i("TextureOn",0);
-        for(int i=0;i<3;i++)
+
+        RenderShader.setUniform1i("TextureOn",1);
+        for(int i=0;i<50;i++)
         {
             floors[i].Render(&RenderShader);
         }
@@ -300,6 +287,8 @@ int main(int argc, char *argv[])
         UIShader.setUniform4f("color",glm::vec4(1.f,1.f,.2f,1.0f));
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glClearColor(0.75,0.75,0.75,1);
+        glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D,Ftransparent.texColorBuffer);

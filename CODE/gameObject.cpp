@@ -13,9 +13,10 @@ void gameObject::Render()
         glUniform4f(unioverColor,Color.x,Color.y,Color.z,Color.w);
         if(renderTexture!=NULL)
         {
+            renderTexture->setUniformLocation(0,"Texture_Diffuse0");
             renderTexture->Activate();
             renderTexture->bindTexture();
-            glUniform1i(glGetUniformLocation(ShaderProgram, "ObjectTexture" ),0);
+            glUniform1i(glGetUniformLocation(ShaderProgram, "Texture_Diffuse0" ),0);
         }
         glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "model" ),1,GL_FALSE,glm::value_ptr(getAbsoluteMatrix()));
         glUniform2f(glGetUniformLocation(ShaderProgram, "TextureScaling"),TextureScale.x,TextureScale.y);

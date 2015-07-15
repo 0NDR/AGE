@@ -174,8 +174,7 @@ in Matrices vMat;
 out vec4 outColor;
 out float outColor1;
 uniform sampler2D ObjectTexture;
-uniform samplerCube CubeTexture;
-uniform sampler2D Texture_Diffuse0,grassHeight,gtext,grassTexture,Texture_Specular0,Texture_Normal0,Texture_Height0;
+uniform sampler2D Texture_Diffuse0,Texture_Specular0,Texture_Normal0,Texture_Height0;
 uniform vec3 viewpos;
 uniform vec2 TextureScaling;
 uniform vec4 ObjectColor;
@@ -319,11 +318,6 @@ void main() {
         FinalColor = vec4(1,1,1,1);
     }
     vec2 DisplacedTexCoord = vOutput.Texcoord*TextureScaling;
-    //DisplacedTexCoord = parallaxMapping(vMat.tbn,Texture_Normal0,DisplacedTexCoord,vec2(.001,0));
-    float factorr = min(4.0*texture(gtext,vOutput.Texcoord).r,1.0);
-    float factorg = min(4.0*texture(gtext,vOutput.Texcoord).g,1.0);
-    vec4 other = texture2D(grassTexture,DisplacedTexCoord);
-    vec4 one = texture2D(grassHeight,DisplacedTexCoord);
     if(LightsOn)
     {
         if(NormalOn)
@@ -332,14 +326,8 @@ void main() {
         }
         else
         {
-            if(grass)
-            {
-                FinalColor *= vec4(blend(vec4(getLights(DisplacedTexCoord,Texture_Normal0,vMat.tbn).rgb,texture(Texture_Normal0,DisplacedTexCoord).a),1.0-factorr,vec4(getLights(DisplacedTexCoord,grassHeight,vMat.tbn).rgb,one.a),factorr),1);
-            }
-            else
-            {
-                FinalColor *= getLights(DisplacedTexCoord,Texture_Normal0,vMat.tbn);
-            }
+
+            FinalColor *= getLights(DisplacedTexCoord,Texture_Normal0,vMat.tbn);
         }
     }
     if(TextureOn)
@@ -350,28 +338,19 @@ void main() {
         }
         else
         {
-            if(grass)
-            {
-                /*float terrain = texture(transitionTexture,vec3(vOutput.Texcoord,1.0)).r;
-                if(factorf>.5)*/
-                vec4 regular=vec4(texture2D(Texture_Diffuse0,DisplacedTexCoord).rgb,texture(Texture_Normal0,DisplacedTexCoord).a);
-                FinalColor *= vec4(vec3(blend(regular,1.0-factorr,vec4(other.rgb,one.a),factorr)),1);//
-            }
-            else
-            {
                 FinalColor *=texture2D(Texture_Diffuse0,DisplacedTexCoord);
-            }
         }
     }
 
-    float z = -vOutput.cameraPosition.z;
+    float z = gl_FragCoord.z;//vOutput.cameraPosition.z;
     outColor = vec4(FinalColor.r,FinalColor.g,FinalColor.b,FinalColor.a);
     if(transparency)
     {
-         float weight =//pow(z,-5);
+         float weight =
                     max(min(1.0, max(max(FinalColor.r, FinalColor.g), FinalColor.b) * FinalColor.a), FinalColor.a) *
-                    max(0.03 / (1e-5 + pow(z / 200, 4.0)), 1e-10);
-        outColor =vec4(FinalColor.rgb*FinalColor.a,FinalColor.a)*weight;
+                    max(0.03 / (1e-5 + abs(pow(z / 200, 4.0))), 1e-4);
+
+        outColor =vec4(FinalColor.rgb*FinalColor.a,FinalColor.a)*weight/5000.0;
         outColor1 = FinalColor.a;
 
     }

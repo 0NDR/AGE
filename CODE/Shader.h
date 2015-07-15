@@ -23,7 +23,9 @@ class Shader: public Resource///Base class for a GLSL shader
     void loadFromFile(std::string filepath);                                                 ///<Calls LoadAndCompileShader() on the items inside a file
     void LoadAndCompileShader(std::string source);                                           ///<Load all types found in a source
     void LoadAndCompileShader(std::string source, GLenum type);                              ///<Load a shader of a given type
-    void deleteShaderOfType(GLenum type);
+    void deleteShaderOfType(GLenum type);                                                    ///<Deletes and shader of a type, GL_VERTEX_SHADER,GL_FRAGMENT_SHADER, etc.
+    void deleteShaderProgram();                                                              ///<Deletes all shaders regaurdless of type
+    void deleteShaderObjects();                                                              ///<Deletes all shader objects and then the program
     void LinkProgram();                                                                      ///<Link all the loaded shaders into ShaderProgram
     void Activate();                                                                         ///<Set the active shader
 

@@ -3,6 +3,21 @@ void Shader::DefaultConstructor()
 {
 }
 
+void Shader::deleteShaderObjects()
+{
+    for(int i=0;i<AttachedShaders.size();i++)
+    {
+        glDetachShader(ShaderProgram,AttachedShaders[i].ShaderLocation);
+        glDeleteShader(AttachedShaders[i].ShaderLocation);
+        AttachedShaders.erase(AttachedShaders.begin()+i);
+        i-=1;
+    }
+}
+void Shader::deleteShaderProgram()
+{
+    deleteShaderObjects();
+    glDeleteProgram(ShaderProgram);
+}
 void Shader::deleteShaderOfType(GLenum type)
 {
     for(int i=0;i<AttachedShaders.size();i++)
@@ -10,7 +25,9 @@ void Shader::deleteShaderOfType(GLenum type)
         if(AttachedShaders[i].ShaderType == type)
         {
             AttachedShaders.erase(AttachedShaders.begin()+i);
+            glDetachShader(ShaderProgram,AttachedShaders[i].ShaderLocation);
             glDeleteShader(AttachedShaders[i].ShaderLocation);
+            i-=1;
         }
     }
 }
