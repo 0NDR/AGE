@@ -8,10 +8,12 @@
 #include "Billboard.h"
 #include "UI.h"
 #include "ResourceFactory.h"
+#include "InstanceFactory.h"
 #include "glTexture.h"
 #include "NoiseCreator.h"
 #include "Model.h"
 #include "FrameBuffer.h"
+#include "LuaScript.h"
 glm::vec3 position = glm::vec3(0,-2,0),look = glm::vec3(0,0,0);
 float speed=.1;
 bool locked, warped,running=true,isgrasson;
@@ -136,13 +138,16 @@ int main(int argc, char *argv[])
     CombCont->addEvent(mouseMoved,SDL_MOUSEMOTION);
 
     ResourceFactory RF;
+    InstanceFactory IF;
+    LuaScript *lscript;
     Model *MarbleModel, *RectangleUIModel,*grassModel;
     glTexture *groundA,*groundB,*Smoke;
-    gameObject floor,floors[50], grass;
+    gameObject floor,floors[30], grass;
     Light bulb;
     UI displayUI, billboardUI;
     Billboard testBillboard;
-    Smoke=RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Smoke2.png");
+    Smoke=RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/firesheet.png");
+    lscript=RF.loadFromFile<LuaScript>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Scripts/LuaTest.lua");
     groundB=RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/beachsandnormal.png");
     groundA = RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/beachsanddiffuse.png");
     MarbleModel = RF.loadFromFile<Model>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/3d/GrassPlane/marbleplane.obj");
@@ -203,13 +208,14 @@ int main(int argc, char *argv[])
     bulb.LinearAttenuation = .5;
     bulb.SpotCutoff = 180;
     bulb.SpotExponent = 1;
-    for(int i=0;i<50;i++)
+    for(int i=0;i<30;i++)
     {
-        floors[i].setParent(&testBillboard);
+        floors[i].setParent(&floor);
         floors[i].Position = glm::vec3((float)RANDOM_INT(-100,100)/50.f,.5,(float)RANDOM_INT(-100,100)/50.f);
         floors[i].Size = glm::vec3(.5,.5,0);
-        floors[i].Rotation = glm::vec3(0,RANDOM_INT(0,360),0);
+        floors[i].Rotation = glm::vec3(90,0,0);
         floors[i].setMesh(RectangleUIModel);
+        floors[i].TextureScale = glm::vec2(1.0/7.0,1.0/7.0);
         floors[i].setTexture(Smoke);
     }
     displayUI.setWindow(CombCont);
@@ -219,9 +225,14 @@ int main(int argc, char *argv[])
     displayUI.setPosition(glm::vec4(0,0,0,0));
     float secondsPassed = 1;
     Uint64 t = SDL_GetPerformanceCounter();
-
+    gameObject::RegisterLua(lscript->getState());
+    LuaScript::RegisterLua(lscript->getState());
+    InstanceFactory::RegisterLua(lscript->getState());
+    luabridge::setGlobal(lscript->getState(),&floor,"Floor");
+    luabridge::setGlobal(lscript->getState(),&IF,"Instance");
     while(running)
     {
+        lscript->Run();
         CombCont->CheckKeys();
         glDepthMask(GL_TRUE);
         glDisable(GL_BLEND);
@@ -274,8 +285,9 @@ int main(int argc, char *argv[])
         glBlendFunci(1,GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 
         RenderShader.setUniform1i("TextureOn",1);
-        for(int i=0;i<50;i++)
+        for(int i=0;i<30;i++)
         {
+            RenderShader.setUniform1i("time",SDL_GetTicks());
             floors[i].Render(&RenderShader);
         }
         Ftransparent.Deactivate();
@@ -309,6 +321,7 @@ int main(int argc, char *argv[])
 
 
         secondsPassed = ((float)(SDL_GetPerformanceCounter()-t)/((float)SDL_GetPerformanceFrequency()));
+        std::cout<<1.0/secondsPassed<<std::endl;
         if(secondsPassed<1.0/300.0)
         {
             SDL_Delay(((1.0/300.0)-secondsPassed)*1000.0);

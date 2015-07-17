@@ -317,7 +317,13 @@ void main() {
     {
         FinalColor = vec4(1,1,1,1);
     }
-    vec2 DisplacedTexCoord = vOutput.Texcoord*TextureScaling;
+    int frames = 7;
+    vec2 dist = vec2(128.0,128);
+    vec2 reso = dist*frames;
+    int frametime=50;
+    int frame = (time/frametime)%(frames*frames);
+    vec2 framedisp = vec2(frame,frame/frames)*dist/reso;
+    vec2 DisplacedTexCoord = (vOutput.Texcoord)*TextureScaling+framedisp;
     if(LightsOn)
     {
         if(NormalOn)
@@ -338,6 +344,7 @@ void main() {
         }
         else
         {
+
                 FinalColor *=texture2D(Texture_Diffuse0,DisplacedTexCoord);
         }
     }

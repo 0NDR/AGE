@@ -112,6 +112,7 @@ int Object::getChildArrayLua(lua_State *k)
     {
         (children[i])->push(k);
         r.append(luabridge::Stack<luabridge::LuaRef>::get(k,-1));
+        lua_pop(k,1);
     }
     luabridge::push(k, r);
     return 1;

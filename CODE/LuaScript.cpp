@@ -31,6 +31,17 @@ struct vec2help: public glm::vec2{
     {
         return x==other.x&&y==other.y;
     }
+    float length()
+    {
+        return glm::length(glm::vec2(x,y));
+    }
+    glm::vec2 Normalize()
+    {
+        glm::vec2 other = glm::normalize(glm::vec2(x,y));
+        x=other.x;
+        y=other.y;
+        return glm::vec2(x,y);
+    }
     std::string getString()
     {
         std::stringstream ss;
@@ -58,6 +69,18 @@ struct vec3help: public glm::vec3{
     glm::vec3 operator/(float other)
     {
         return glm::vec3(x/other,y/other,z/other);
+    }
+    float length()
+    {
+        return glm::length(glm::vec3(x,y,z));
+    }
+    glm::vec3 Normalize()
+    {
+        glm::vec3 other = glm::normalize(glm::vec3(x,y,z));
+        x=other.x;
+        y=other.y;
+        z=other.z;
+        return glm::vec3(x,y,z);
     }
     bool operator==(glm::vec3 &other)
     {
@@ -94,6 +117,19 @@ struct vec4help: public glm::vec4{
     bool operator==(glm::vec4 &other)
     {
         return x==other.x&&y==other.y&&z==other.z&&w==other.w;
+    }
+    float length()
+    {
+        return glm::length(glm::vec3(x,y,z));
+    }
+    glm::vec4 Normalize()
+    {
+        glm::vec4 other = glm::normalize(glm::vec4(x,y,z,w));
+        x=other.x;
+        y=other.y;
+        z=other.z;
+        w=other.w;
+        return glm::vec4(x,y,z,w);
     }
     std::string getString()
     {
@@ -186,6 +222,8 @@ void LuaScript::RegisterLua(lua_State *l)
                                             .addConstructor<void (*)(float, float)>()
                                             .addData("x",&vec2help::x)
                                             .addData("y",&vec2help::y)
+                                            .addFunction("normalize",(glm::vec2  (glm::vec2 ::*) () const )&vec2help::Normalize)
+                                            .addFunction("length",(float  (glm::vec2 ::*) () const )&vec2help::length)
                                             .addFunction("__add",(glm::vec2  (glm::vec2 ::*) (const glm::vec2 &) const )&vec2help::operator+)
                                             .addFunction("__sub",(glm::vec2  (glm::vec2 ::*) (const glm::vec2 &) const )&vec2help::operator-)
                                             .addFunction("__mul",(glm::vec2  (glm::vec2 ::*) (const float) const )&vec2help::operator*)
@@ -202,6 +240,8 @@ void LuaScript::RegisterLua(lua_State *l)
                                             .addData("r",&vec3help::x)
                                             .addData("g",&vec3help::y)
                                             .addData("b",&vec3help::z)
+                                            .addFunction("normalize",(glm::vec3  (glm::vec3 ::*) () const )&vec3help::Normalize)
+                                            .addFunction("length",(float  (glm::vec3 ::*) () const )&vec3help::length)
                                             .addFunction("__add",(glm::vec3  (glm::vec3 ::*) (const glm::vec3 &) const )&vec3help::operator+)
                                             .addFunction("__sub",(glm::vec3  (glm::vec3 ::*) (const glm::vec3 &) const )&vec3help::operator-)
                                             .addFunction("__mul",(glm::vec3  (glm::vec3 ::*) (const float) const )&vec3help::operator*)
@@ -220,6 +260,8 @@ void LuaScript::RegisterLua(lua_State *l)
                                             .addData("g",&vec4help::y)
                                             .addData("b",&vec4help::z)
                                             .addData("a",&vec4help::w)
+                                            .addFunction("normalize",(glm::vec4  (glm::vec4 ::*) () const )&vec4help::Normalize)
+                                            .addFunction("length",(float  (glm::vec4 ::*) () const )&vec4help::length)
                                             .addFunction("__add",(glm::vec4  (glm::vec4 ::*) (const glm::vec4 &) const )&vec4help::operator+)
                                             .addFunction("__sub",(glm::vec4  (glm::vec4 ::*) (const glm::vec4 &) const )&vec4help::operator-)
                                             .addFunction("__mul",(glm::vec4  (glm::vec4 ::*) (const float) const )&vec4help::operator*)
