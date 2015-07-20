@@ -317,12 +317,12 @@ void main() {
     {
         FinalColor = vec4(1,1,1,1);
     }
-    int frames = 7;
-    vec2 dist = vec2(128.0,128);
+    ivec2 frames = ivec2(12,6);
+    vec2 dist = vec2(85.0,85.0);
     vec2 reso = dist*frames;
     int frametime=50;
-    int frame = (time/frametime)%(frames*frames);
-    vec2 framedisp = vec2(frame,frame/frames)*dist/reso;
+    int frame = (time/frametime)%(frames.x*frames.y);
+    vec2 framedisp = vec2(frame%frames.x,frame/frames.y)*dist/reso;
     vec2 DisplacedTexCoord = (vOutput.Texcoord)*TextureScaling+framedisp;
     if(LightsOn)
     {
