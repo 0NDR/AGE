@@ -318,11 +318,13 @@ void main() {
         FinalColor = vec4(1,1,1,1);
     }
     ivec2 frames = ivec2(12,6);
+    int framecount = frames.x*frames.y;
     vec2 dist = vec2(85.0,85.0);
     vec2 reso = dist*frames;
     int frametime=50;
-    int frame = (time/frametime)%(frames.x*frames.y);
-    vec2 framedisp = vec2(frame%frames.x,frame/frames.y)*dist/reso;
+    int frame = (time/frametime)%(framecount);
+    if(frame>(framecount-1)){frame = framecount-(frame-framecount)-1;}
+    vec2 framedisp = vec2(frame%frames.x,frame/frames.x)*dist/reso;
     vec2 DisplacedTexCoord = (vOutput.Texcoord)*TextureScaling+framedisp;
     if(LightsOn)
     {

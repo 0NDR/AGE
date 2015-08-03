@@ -119,17 +119,16 @@ int Object::getChildArrayLua(lua_State *k)
 }
 int Object::findFirstChildLua(lua_State *k)
 {
-   bool found = false;
    std::string childName = lua_tostring(k,-1);
-   for(int i=0;i<children.size()&&!found;i++)
+   for(int i=0;i<children.size();i++)
    {
        if(children[i]->getName() == childName)
        {
             children[i]->push(k);
-            found = true;
+            return 1;
        }
    }
-   return found?1:0;
+   return 0;
 }
 bool Object::luaIsEqual(Object *other)
 {

@@ -107,7 +107,7 @@ void mouseMoved(SDL_Event e)
         {
             warped = false;
         }
-        if (GLOBAL::Distance(e.motion.x, CombCont->getSize().x/2, e.motion.y, CombCont->getSize().y/2, 0, 0)>150)
+        if (GLOBAL::Distance(e.motion.x, CombCont->getSize().x/2, e.motion.y, CombCont->getSize().y/2, 0, 0)>2)
         {
             warped = true;
             SDL_WarpMouseInWindow(CombCont->getWindow(),CombCont->getSize().x/2, CombCont->getSize().y/2);
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     GLOBAL::Init();
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_JPG|IMG_INIT_PNG);
-    CombCont = new CombinedController(100,100,512,512,SDL_WINDOW_OPENGL| SDL_WINDOW_RESIZABLE);
+    CombCont = new CombinedController(1920+100,100,512,512,SDL_WINDOW_OPENGL| SDL_WINDOW_RESIZABLE);
     Ftransparent.CreateFrameBuffer(512,512);
     Fopaque.CreateFrameBuffer(512,512);
 
@@ -228,11 +228,12 @@ int main(int argc, char *argv[])
     gameObject::RegisterLua(lscript->getState());
     LuaScript::RegisterLua(lscript->getState());
     InstanceFactory::RegisterLua(lscript->getState());
+    IF.setDefaultObject(&floors[0]);
     luabridge::setGlobal(lscript->getState(),&floor,"Floor");
     luabridge::setGlobal(lscript->getState(),&IF,"Instance");
     while(running)
     {
-
+        t = SDL_GetPerformanceCounter();
         lscript->Run();
         CombCont->CheckKeys();
         glDepthMask(GL_TRUE);
@@ -286,10 +287,11 @@ int main(int argc, char *argv[])
         glBlendFunci(1,GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 
         RenderShader.setUniform1i("TextureOn",1);
-        for(int i=0;i<36;i++)
+
+        for(int i=0;i<floor.getChildArray().size();i++)
         {
             RenderShader.setUniform1i("time",SDL_GetTicks());
-            floors[i].Render(&RenderShader);
+            ((gameObject*)floor.getChildArray()[i])->Render(&RenderShader);
         }
         Ftransparent.Deactivate();
 
@@ -319,17 +321,14 @@ int main(int argc, char *argv[])
         glUniform1i(glGetUniformLocation(UIShader.ShaderProgram,"isbkg"),0);
         displayUI.Render(&UIShader);
         CombCont->Swap();
-
-
+        Lights.clear();
+        secondsPassed = ((float)(SDL_GetPerformanceCounter()-t)/((float)SDL_GetPerformanceFrequency()));
+        /*if(secondsPassed<.031)
+        {
+            SDL_Delay((.031-secondsPassed)*1000.0);
+        }*/
         secondsPassed = ((float)(SDL_GetPerformanceCounter()-t)/((float)SDL_GetPerformanceFrequency()));
         std::cout<<1.0/secondsPassed<<std::endl;
-        if(secondsPassed<1.0/300.0)
-        {
-            SDL_Delay(((1.0/300.0)-secondsPassed)*1000.0);
-        }
-        secondsPassed = ((float)(SDL_GetPerformanceCounter()-t)/((float)SDL_GetPerformanceFrequency()));
-        t = SDL_GetPerformanceCounter();
-        Lights.clear();
     }
     IMG_Quit();
     SDL_Quit();
