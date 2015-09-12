@@ -36,7 +36,7 @@ class KeyController
         std::vector<MOUSEMOVED> MouseMovedFunctions;
         static std::string TypeID() {return "KeyController";}
         virtual std::string type() {return "KeyController";}
-        static void RegisterLua(lua_State* l, bool InitParentType = false)
+        static void RegisterLua(lua_State* l)
         {
             luabridge::getGlobalNamespace(l)
                                         .beginClass<SDL_Keysym>("KeySym")
@@ -95,6 +95,10 @@ class KeyController
             luabridge::setGlobal(l,(int)SDLK_RCTRL,"KEY_RCTRL");
             luabridge::setGlobal(l,(int)SDLK_LCTRL,"KEY_LCTRL");
             luabridge::setGlobal(l,(int)SDLK_BACKSPACE,"KEY_BACKSPACE");
+            luabridge::setGlobal(l,(int)SDLK_UP,"KEY_UP");
+            luabridge::setGlobal(l,(int)SDLK_DOWN,"KEY_DOWN");
+            luabridge::setGlobal(l,(int)SDLK_LEFT,"KEY_LEFT");
+            luabridge::setGlobal(l,(int)SDLK_RIGHT,"KEY_RIGHT");
 
             luabridge::setGlobal(l,(int)KMOD_LSHIFT,"KMOD_LSHIFT");
             luabridge::setGlobal(l,(int)KMOD_RSHIFT,"KMOD_RSHIFT");

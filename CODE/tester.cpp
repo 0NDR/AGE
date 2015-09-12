@@ -14,6 +14,7 @@
 #include "Model.h"
 #include "FrameBuffer.h"
 #include "LuaScript.h"
+#include "LuaWorld.h"
 glm::vec3 position = glm::vec3(0,-2,0),look = glm::vec3(0,0,0);
 float speed=.1;
 bool locked, warped,running=true,isgrasson;
@@ -140,7 +141,8 @@ int main(int argc, char *argv[])
 
     ResourceFactory RF;
     InstanceFactory IF;
-    LuaScript *lscript;
+    LuaWorld lWorld;
+    LuaScript *lscript = new LuaScript();
     Model *MarbleModel, *RectangleUIModel,*grassModel;
     glTexture *groundA,*groundB,*Smoke;
     gameObject floor,floors[36], grass;
@@ -148,7 +150,11 @@ int main(int argc, char *argv[])
     Light bulb;
     UI displayUI, billboardUI;
     Billboard testBillboard;
-    lscript=RF.loadFromFile<LuaScript>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Scripts/LuaTest.lua");
+    gameObject::RegisterLua(lWorld.getState());
+    LuaScript::RegisterLua(lWorld.getState());
+    InstanceFactory::RegisterLua(lWorld.getState());
+    lWorld.attachScript(lscript);
+    lscript->loadFromFile("C:/Users/Nick/Dropbox/Apps/AGE/Resources/Scripts/LuaTest.lua");
     Smoke=RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/firesheet3.png");
     groundB=RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/beachsandnormal.png");
     groundA = RF.loadFromFile<glTexture>("C:/Users/Nick/Dropbox/Apps/AGE/Resources/beachsanddiffuse.png");
@@ -216,16 +222,18 @@ int main(int argc, char *argv[])
     displayUI.setPosition(glm::vec4(0,0,0,0));
     float secondsPassed = 1;
     Uint64 t = SDL_GetPerformanceCounter();
-    gameObject::RegisterLua(lscript->getState());
-    LuaScript::RegisterLua(lscript->getState());
-    InstanceFactory::RegisterLua(lscript->getState());
+
+
+
+    luabridge::setGlobal(lWorld.getState(),&BASE,"Floor");
+    luabridge::setGlobal(lWorld.getState(),&IF,"Instance");
+
     IF.setDefaultObject(&floors[0]);
-    luabridge::setGlobal(lscript->getState(),&BASE,"Floor");
-    luabridge::setGlobal(lscript->getState(),&IF,"Instance");
+    lWorld.startScripts();
     while(running)
     {
         t = SDL_GetPerformanceCounter();
-        lscript->Run();
+        lWorld.continueScripts();
         CombCont->CheckKeys();
         glDepthMask(GL_TRUE);
         glDisable(GL_BLEND);

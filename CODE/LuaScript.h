@@ -18,11 +18,13 @@ class LuaScript: public Resource    ///Class to handle Lua scripts and lua state
         std::string source;
         bool isFile;
         bool isMultithreaded();
+        void setState(lua_State* state);
         lua_State* getState();
         void loadFromFile(std::string path);
         void loadString(std::string s);
         std::string Run(bool runmultithreaded = false);
         void Stop();
+        void Continue();
         virtual int push(lua_State *l)
         {
             luabridge::push(l,this);

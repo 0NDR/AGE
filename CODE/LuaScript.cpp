@@ -1,7 +1,12 @@
 #include "LuaScript.h"
 int runThread(void* ptr);
-void luaWait(int ms){
-    SDL_Delay(ms);
+int luaWait(lua_State* l){
+    luabridge::LuaRef arg = luabridge::LuaRef::fromStack(l,2);
+    if(arg.isNumber())
+        SDL_Delay(arg.cast<int>());
+    else
+        lua_yield(l,0);
+    return 0;
 }
 long luaClock(){
     return (long)SDL_GetTicks();
@@ -137,15 +142,16 @@ struct vec4help: public glm::vec4{
         ss<<x<<" x "<<y<<" x "<<z<<" x "<<w;
         return ss.str();
     }
-
 };
-
-
+void LuaScript::setState(lua_State* state)
+{
+    L=lua_newthread(state);
+}
 lua_State *LuaScript::getState()
 {
-    if(L==0)
+    if(L==NULL)
     {
-        L = luaL_newstate();
+        L=luaL_newstate();
         luaopen_io(L);
         luaopen_base(L);
         luaopen_table(L);
@@ -153,13 +159,13 @@ lua_State *LuaScript::getState()
         luaopen_math(L);
         luaL_openlibs(L);
     }
-
     return L;
 }
 
 void LuaScript::loadFromFile(std::string path)
 {
-    luaL_loadfile(getState(),path.c_str());
+    if(luaL_loadfile(getState(),path.c_str()))
+        std::cout<<lua_tostring(getState(),-1);
     isFile = true;
     source = path;
 }
@@ -175,23 +181,34 @@ std::string LuaScript::Run(bool runmultithreaded)
 {
     status="";
     multithreaded = runmultithreaded;
-    if(multithreaded)
-        luathread = SDL_CreateThread(runThread,"LuaThread ",this);
-    else
-        runThread(this);
+    //if(multithreaded)
+        //luathread = SDL_CreateThread(runThread,"LuaThread ",this);
+   // else
+    lua_resume(getState(),NULL,0);
+    std::cout<<lua_tostring(getState(),-1)<<std::endl;
     return status;
+}
+void LuaScript::Continue()
+{
+    lua_resume(getState(),NULL,1);
 }
 void LuaScript::Stop()
 {
     lua_yield(getState(),0);
 }
+int cont(lua_State *L)
+{
+    return 0;
+}
+
 int runThread(void* ptr)
 {
     LuaScript *theScript = (LuaScript*)ptr;
     luabridge::setGlobal(theScript->getState(),theScript,"this");
-    if(theScript->isFile)
+
+    /*if(theScript->isFile)
     {
-        if(luaL_loadfile(theScript->getState(), theScript->source.c_str())|| lua_pcall(theScript->getState(),0,0,0))
+        if(luaL_dofile(theScript->getState(), theScript->source.c_str()))
             theScript->status = lua_tostring(theScript->getState(),-1);
     }
     else
@@ -199,7 +216,7 @@ int runThread(void* ptr)
         if(luaL_dostring(theScript->getState(), theScript->source.c_str()))
             theScript->status =  lua_tostring(theScript->getState(),-1);
     }
-    std::cout<<theScript->status;
+    std::cout<<theScript->status;*/
 }
 
 void LuaScript::RegisterLua(lua_State *l)
@@ -216,7 +233,7 @@ void LuaScript::RegisterLua(lua_State *l)
                                                     .addFunction("Run",&LuaScript::Run)
                                                     .addFunction("__eq",(bool (LuaScript::*) (const LuaScript*) const)&Object::luaIsEqual)
                                         .endClass()
-                                        .addFunction("wait",luaWait)
+                                        .addCFunction("wait",luaWait)
                                         .addFunction("Clock",luaClock)
                                         .beginClass<glm::vec2>("vec2")
                                             .addConstructor<void (*)(float, float)>()

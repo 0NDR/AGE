@@ -8,6 +8,9 @@ class UI: public Object2D  ///Default class for handling 2D rendering, UIs lie a
     protected:
 
         Model* renderMesh;
+        glTexture* renderTexture;
+        glm::vec2 textureScale=glm::vec2(1,1);
+        int zIndex;
     public:
         UI(){addNewType();}
         UI(Object* parent): Object2D(parent){addNewType();}
@@ -19,9 +22,12 @@ class UI: public Object2D  ///Default class for handling 2D rendering, UIs lie a
 
         glm::vec4* getColor(); ///<Returns a pointer to the color variable
         glm::vec4 Color;       ///<Color data
-
-
+        void setTextureScale(glm::vec2 a){textureScale=a;}
+        glm::vec2 getTextureScale()const{return textureScale;}
+        void setZIndex(int a){zIndex=a;}
+        int  getZIndex()const{return zIndex;}
         void setMesh(Model* newMesh); ///< Sets the mesh for use when rendering
+        void setTexture(glTexture* text);
         void Render(Shader* shad)
         {
             setShader(shad);
@@ -50,7 +56,10 @@ class UI: public Object2D  ///Default class for handling 2D rendering, UIs lie a
             luabridge::getGlobalNamespace(l).deriveClass<UI,Object2D>(TypeID().c_str())
                                                 .addConstructor<void (*)(std::string)>()
                                                 .addFunction("setMesh",&UI::setMesh)
+                                                .addFunction("setTexture", &UI::setTexture)
                                                 .addProperty("Color",(glm::vec4* (UI::*)()const)&UI::getColor,&UI::setColor)
+                                                .addProperty("textureScale",&UI::getTextureScale,&UI::setTextureScale)
+                                                .addProperty("zIndex",&UI::getZIndex,&UI::setZIndex)
                                             .endClass();
     } ///<Adds the class definition to a given lua state
 };

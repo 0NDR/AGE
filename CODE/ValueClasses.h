@@ -43,9 +43,6 @@ class ObjectValue: public Object ///base class for every object which changes it
     ObjectValue(Object* parent, std::string name): Object(parent,name){addNewType();}///<
 
     void setValue(Object* a)  {Value=a;}
-    Object*  getValue() const {std::cout<<Value<<"p ";return Value;}
-
-
     int getValuecf(lua_State*l)
     {
         if(Value==NULL)
@@ -68,8 +65,6 @@ class ObjectValue: public Object ///base class for every object which changes it
             GLOBAL::addRegister(ObjectValue::TypeID(),l);
             luabridge::getGlobalNamespace(l).deriveClass<ObjectValue,Object>(TypeID().c_str())
                                                 .addProperty("Value",(Object& (ObjectValue::*)() const)&ObjectValue::getValuecf,&ObjectValue::setValue)
-                                                .addFunction("setValue",&ObjectValue::setValue)
-                                                .addCFunction("getValue",&ObjectValue::getValuecf)
                                             .endClass();
     }
 };

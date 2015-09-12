@@ -9,6 +9,10 @@ void UI::setMesh(Model* newMesh)
 {
     renderMesh = newMesh;
 }
+void UI::setTexture(glTexture* text)
+{
+    renderTexture=text;
+}
 void UI::Update()
 {
 
@@ -21,7 +25,15 @@ void UI::Render()
             return;
         }
         renderShader->Activate();
+        if(renderTexture!=NULL)
+        {
+            renderTexture->setUniformLocation(0,"texture0");
+            renderTexture->Activate();
+            renderTexture->bindTexture();
+        }
         GLuint ShaderProgram = renderShader->ShaderProgram;
+        glUniform1i(glGetUniformLocation(ShaderProgram,"zIndex"),zIndex);
+        glUniform2f(glGetUniformLocation(ShaderProgram,"textureScale"),textureScale.x,textureScale.y);
         glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "model" ),1,GL_FALSE,glm::value_ptr(getAbsoluteMatrix()));
         GLint unioverColor = glGetUniformLocation(ShaderProgram,"ObjectColor");
         glUniform4f(unioverColor,Color.x,Color.y,Color.z,Color.w);

@@ -32,6 +32,24 @@ class ResourceFactory
 
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 template<class t> t* ResourceFactory::loadFromFile(std::string filepath)
 {
     for(int i=0;i<loadedFiles.size();i++)
@@ -47,5 +65,8 @@ template<class t> t* ResourceFactory::loadFromFile(std::string filepath)
     loadedFiles.push_back(resourceHolder(filepath,returnVal));
     return dynamic_cast<t*>(returnVal);
 }
+
+
+
 
 #endif // RESOURCE_FACTORY_INCLUDED

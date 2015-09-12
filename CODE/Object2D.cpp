@@ -29,7 +29,7 @@ glm::mat4 Object2D::getAbsoluteMatrix()
         ObjectRotation = glm::rotate(glm::mat4(1.0f),AbsoluteRotation,glm::vec3(0,0,1));
     }
     ObjectScaling =  glm::scale(glm::mat4(1.0f),glm::vec3(AbsoluteScale,1));
-    ObjectTranslation = glm::translate(glm::mat4(1.0f),glm::vec3(AbsolutePosition,0));
+    ObjectTranslation = glm::translate(glm::mat4(1.0f),glm::vec3(AbsolutePosition,-11));
     glm::mat4 windowScaling = glm::scale(glm::mat4(1.0f),glm::vec3(renderWindow->getSize(),1.f));
     if(Parent->isType(Object2D::TypeID())&&getParent()!=this)
     {

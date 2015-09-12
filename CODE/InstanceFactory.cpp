@@ -8,6 +8,7 @@
 #include "UI.h"
 #include "Billboard.h"
 #include "Shader.h"
+#include "ValueClasses.h"
 template<class t> void InstanceFactory::pushObjectOfType(lua_State *l)
 {
     t* nO = new t();
@@ -67,6 +68,16 @@ int InstanceFactory::newObject(lua_State *l)
     else if(Argument == Billboard::TypeID())
     {
         pushObjectOfType<Billboard>(l);
+        return 1;
+    }
+    else if(Argument == IntValue::TypeID())
+    {
+        pushObjectOfType<IntValue>(l);
+        return 1;
+    }
+    else if(Argument == ObjectValue::TypeID())
+    {
+        pushObjectOfType<ObjectValue>(l);
         return 1;
     }
     return 0;
