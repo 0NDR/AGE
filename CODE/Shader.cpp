@@ -10,7 +10,7 @@ void Shader::deleteShaderObjects()
         glDetachShader(ShaderProgram,AttachedShaders[i].ShaderLocation);
         glDeleteShader(AttachedShaders[i].ShaderLocation);
         AttachedShaders.erase(AttachedShaders.begin()+i);
-        i-=1;
+        i--;
     }
 }
 void Shader::deleteShaderProgram()
@@ -27,7 +27,7 @@ void Shader::deleteShaderOfType(GLenum type)
             AttachedShaders.erase(AttachedShaders.begin()+i);
             glDetachShader(ShaderProgram,AttachedShaders[i].ShaderLocation);
             glDeleteShader(AttachedShaders[i].ShaderLocation);
-            i-=1;
+            i--;
         }
     }
 }

@@ -22,6 +22,7 @@ glTexture mtext,transitionTexture;
 NoiseCreator N;
 FrameBuffer Ftransparent,Fopaque;
 GameShader RenderShader, UIShader;
+
 void key(SDL_Event e)
 {
 
@@ -129,7 +130,7 @@ int main(int argc, char *argv[])
     GLOBAL::Init();
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_JPG|IMG_INIT_PNG);
-    CombCont = new CombinedController(1920+100,100,512,512,SDL_WINDOW_OPENGL| SDL_WINDOW_RESIZABLE);
+    CombCont = new CombinedController(100,100,512,512,SDL_WINDOW_OPENGL| SDL_WINDOW_RESIZABLE);
     Ftransparent.CreateFrameBuffer(512,512);
     Fopaque.CreateFrameBuffer(512,512);
 
@@ -143,6 +144,7 @@ int main(int argc, char *argv[])
     Model *MarbleModel, *RectangleUIModel,*grassModel;
     glTexture *groundA,*groundB,*Smoke;
     gameObject floor,floors[36], grass;
+    Object BASE;
     Light bulb;
     UI displayUI, billboardUI;
     Billboard testBillboard;
@@ -177,12 +179,7 @@ int main(int argc, char *argv[])
     groundB->setTextureProperty(GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     groundB->loadTexture();
 
-    testBillboard.setWindow(CombCont);
-    testBillboard.setShader(&RenderShader);
-    testBillboard.Position = glm::normalize(glm::vec3(1,1,1));
-    testBillboard.setSize(glm::vec4(1,0,1,0));
-    testBillboard.setLockAxis(glm::vec3(0,1,0));
-    testBillboard.setRotation(0);
+    BASE.setName("Ahh");
 
     grass.setShader(&RenderShader);
     grass.setSize(glm::vec3(1,1,1));
@@ -194,28 +191,22 @@ int main(int argc, char *argv[])
     floor.setPosition(glm::vec3(0,0,0));
     floor.TextureScale = glm::vec2(10,10);
 
-    billboardUI.setParent(&testBillboard);
-    billboardUI.setWindow(CombCont);
-    billboardUI.setMesh(grassModel);
-    billboardUI.setColor(glm::vec4(1,1,0,.2));
-    billboardUI.setSize(glm::vec4(1,0,1,0));
-    billboardUI.setPosition(glm::vec4(0,0,0,0));
-
     bulb.Position = glm::vec3(0,1,0);
-    bulb.DiffuseColor=glm::vec4(1,1,1,1);
-    bulb.SpecularColor=glm::vec4(2,2,2,1);
-    bulb.AmbientColor=glm::vec4(.1,.1,.1,1);
+    bulb.Direction = glm::vec3(0,0,1);
+    bulb.DiffuseColor=glm::vec4(2,2,2,1);
+    bulb.SpecularColor=glm::vec4(5,5,5,1);
+    bulb.AmbientColor=glm::vec4(.01,.01,.01,1);
     bulb.LinearAttenuation = .5;
-    bulb.SpotCutoff = 180;
-    bulb.SpotExponent = 1;
+    bulb.SpotCutoff = 45;
+    bulb.SpotExponent = 10;
     for(int i=0;i<36;i++)
     {
-        floors[i].setParent(&floor);
-        floors[i].Position = glm::vec3((float)RANDOM_INT(-100,100)/50.f,.5,(float)RANDOM_INT(-100,100)/50.f);
-        floors[i].Size = glm::vec3(.5,.5,0);
-        floors[i].Rotation = glm::vec3(90,0,0);
-        floors[i].setMesh(RectangleUIModel);
-        floors[i].TextureScale = glm::vec2(1.0/12.0,1.0/6.0);
+        floors[i].setParent(&BASE);
+        floors[i].Position = glm::vec3(i/6,1,i%6);
+        floors[i].Size = glm::vec3(1,1,1);
+        floors[i].Rotation = glm::vec3(0,RANDOM_INT(0,3600)/10,0);
+        floors[i].setMesh(grassModel);
+        floors[i].TextureScale = glm::vec2(1.0,1.0);
         floors[i].setTexture(Smoke);
     }
     displayUI.setWindow(CombCont);
@@ -229,7 +220,7 @@ int main(int argc, char *argv[])
     LuaScript::RegisterLua(lscript->getState());
     InstanceFactory::RegisterLua(lscript->getState());
     IF.setDefaultObject(&floors[0]);
-    luabridge::setGlobal(lscript->getState(),&floor,"Floor");
+    luabridge::setGlobal(lscript->getState(),&BASE,"Floor");
     luabridge::setGlobal(lscript->getState(),&IF,"Instance");
     while(running)
     {
@@ -243,13 +234,14 @@ int main(int argc, char *argv[])
         glBindFragDataLocation( RenderShader.ShaderProgram, 0, "outColor" );
         glBindFragDataLocation( RenderShader.ShaderProgram, 1, "outColor1" );
         glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-        glClearColor(0.75,0.75,0.75,1);
+        glClearColor(0,0,0,1);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_ALPHA_TEST);
         glAlphaFunc(GL_GEQUAL,.9);
         RenderShader.setProjectionMatrix(90.0,CombCont->getAspectRatio(),.01,1000);
         RenderShader.setViewMatrix(position,look);
-        RenderShader.setUniform1i("LightsOn",0);
+        RenderShader.setUniform1i("LightsOn",1);
+        RenderShader.setUniform1i("NormalsOn",1);
         RenderShader.setUniform1i("TextureOn",1);
         RenderShader.setUniform3f("viewpos",-position);
         RenderShader.setUniform1i("ZeroOn",0);
@@ -259,10 +251,22 @@ int main(int argc, char *argv[])
         mtext.AttachAs(&RenderShader,"gtext",2);
         groundA->AttachAs(&RenderShader,"grassTexture",4);
         groundB->AttachAs(&RenderShader,"grassHeight",5);
-
-
+        float theta = -look.y+180;
+        float phi = look.x+90.f;
+        theta = DegreesToRadians(theta);
+        phi = DegreesToRadians(phi);
+        bulb.Direction =glm::vec3(sinf(theta)*sinf(phi),cosf(phi),cosf(theta)*sinf(phi));
+        glm::vec4 testf = glm::inverse(RenderShader.getViewMatrix())*glm::vec4(-.5,-.5,0,0);
+        bulb.Position = -position+glm::vec3(testf.x,testf.y,testf.z);
         bulb.Render(&RenderShader);
+        RenderShader.setUniform1i("normalsphere",0);
         floor.Render(&RenderShader);
+        RenderShader.setUniform1i("normalsphere",1);
+        for(int i=0;i<BASE.getChildArray().size();i++)
+        {
+            RenderShader.setUniform1i("time",SDL_GetTicks());
+            ((gameObject*)BASE.getChildArray()[i])->Render(&RenderShader);
+        }
         RenderShader.setUniform1i("grass",0);
 
         Fopaque.Deactivate();
@@ -287,22 +291,25 @@ int main(int argc, char *argv[])
         glBlendFunci(1,GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 
         RenderShader.setUniform1i("TextureOn",1);
+        RenderShader.setUniform1i("NormalsOn",0);
 
-        for(int i=0;i<floor.getChildArray().size();i++)
+        //bulb.Render(&RenderShader);
+        RenderShader.setUniform1i("normalsphere",1);
+        for(int i=0;i<BASE.getChildArray().size();i++)
         {
             RenderShader.setUniform1i("time",SDL_GetTicks());
-            ((gameObject*)floor.getChildArray()[i])->Render(&RenderShader);
+            ((gameObject*)BASE.getChildArray()[i])->Render(&RenderShader);
         }
         Ftransparent.Deactivate();
 
         //--2D--
         UIShader.Activate();
-        UIShader.setProjectionMatrix(glm::ortho(-CombCont->getSize().x,CombCont->getSize().x,-CombCont->getSize().y,CombCont->getSize().y));
+        UIShader.setProjectionMatrix(glm::ortho(-CombCont->getSize().x,CombCont->getSize().x,-CombCont->getSize().y,CombCont->getSize().y,0.f,1000.f));
         glDisable(GL_DEPTH_TEST);
         UIShader.setUniform4f("color",glm::vec4(1.f,1.f,.2f,1.0f));
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        glClearColor(0.75,0.75,0.75,1);
+        glClearColor(0,0,0,1);
         glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE2);
@@ -328,7 +335,7 @@ int main(int argc, char *argv[])
             SDL_Delay((.031-secondsPassed)*1000.0);
         }*/
         secondsPassed = ((float)(SDL_GetPerformanceCounter()-t)/((float)SDL_GetPerformanceFrequency()));
-        std::cout<<1.0/secondsPassed<<std::endl;
+        //std::cout<<1.0/secondsPassed<<std::endl;
     }
     IMG_Quit();
     SDL_Quit();

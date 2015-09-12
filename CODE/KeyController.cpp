@@ -78,6 +78,7 @@ void KeyController::removeEvent(EVENTFUNCTION f, Uint32 calltype)
         if(eventFunctions[i].f == f && eventFunctions[i].type == calltype)
         {
             removeEvent(i);
+            i--;
         }
     }
 }

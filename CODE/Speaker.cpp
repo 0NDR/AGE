@@ -186,7 +186,7 @@ void Speaker::Update()
                 {
                     alSourceUnqueueBuffers(getSource(),processed,qubuf);
                 }
-                for(int i=0;i<processed;i++)
+                for(unsigned int i=0;i<processed;i++)
                 {
                     ssbuf->ReadDataTo(qubuf[i]);
                     alSourceQueueBuffers(getSource(),1,qubuf);

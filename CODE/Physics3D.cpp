@@ -36,15 +36,13 @@ void Physics3D::SetCollisionShape(Mesh* collShape, bool replaceDuplicates)
      int numVerticies = collShape->VertexData.size();
      btScalar *vert = new btScalar[numVerticies*3];
      int *Indicies = new int[numTriangles*3];
-
-     int k=0;
-     for(int i=0;i<numVerticies;i++)
+     for(unsigned int i=0;i<numVerticies;i++)
      {
         vert[i*3] = btScalar(collShape->VertexData[i].Position.x);
         vert[i*3+1] = btScalar(collShape->VertexData[i].Position.y);
         vert[i*3+2] = btScalar(collShape->VertexData[i].Position.z);
      }
-     for(int i =0;i<numTriangles;i++)
+     for(unsigned int i =0;i<numTriangles;i++)
      {
         Indicies[i*3] = collShape->Indices[i*3];
         Indicies[i*3+1] = collShape->Indices[i*3+1];

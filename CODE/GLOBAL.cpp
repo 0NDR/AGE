@@ -15,6 +15,7 @@ void removeCollision(GLOBAL::ObjectCollisionPointer *col)
         {
         if(equalsCollision(col,&Collisions[i]))
             Collisions.erase(Collisions.begin()+i);
+            i--;
         }
 }
 

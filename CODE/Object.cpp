@@ -26,7 +26,7 @@ Object::Object(Object* parent, std::string name)
 
 bool Object::isType(std::string other)
 {
-    for(int i=0;i<parenttypes.size();i++)
+    for(unsigned int i=0;i<parenttypes.size();i++)
     {
         if(other == parenttypes[i])
             return true;
@@ -79,7 +79,7 @@ void Object::addChild(Object* newChild)
 
 Object* Object::findFirstChild(std::string childName)
 {
-   for(int i=0;i<children.size();i++)
+   for(unsigned int i=0;i<children.size();i++)
    {
        if(children[i]->getName() == childName)
             return children[i];
@@ -89,12 +89,12 @@ Object* Object::findFirstChild(std::string childName)
 
 void Object::removeChild(Object* newChild)
 {
-    for(int i=0;i<children.size();i++)
+    for(unsigned int i=0;i<children.size();i++)
     {
         if(children[i]==newChild)
         {
-            delete children[i];
             children.erase(children.begin()+i);
+            i--;
 
         }
     }
@@ -108,7 +108,7 @@ std::vector<Object*> Object::getChildArray()
 int Object::getChildArrayLua(lua_State *k)
 {
     luabridge::LuaRef r = luabridge::newTable(k);
-    for(int i=0;i<children.size();i++)
+    for(unsigned int i=0;i<children.size();i++)
     {
         (children[i])->push(k);
         r.append(luabridge::Stack<luabridge::LuaRef>::get(k,-1));
@@ -120,7 +120,7 @@ int Object::getChildArrayLua(lua_State *k)
 int Object::findFirstChildLua(lua_State *k)
 {
    std::string childName = lua_tostring(k,-1);
-   for(int i=0;i<children.size();i++)
+   for(unsigned int i=0;i<children.size();i++)
    {
        if(children[i]->getName() == childName)
        {
@@ -132,6 +132,5 @@ int Object::findFirstChildLua(lua_State *k)
 }
 bool Object::luaIsEqual(Object *other)
 {
-    std::cout<<this<<" x "<<other<<std::endl;
     return this==other;
 }

@@ -27,7 +27,7 @@ void SoundStream::loadFromFile(std::string filepath)
     PlayTime=0;
     PauseTime=0;
     TotalPauseTime=0;
-    for(int i=0;i<2;i++)
+    for(unsigned int i=0;i<2;i++)
     {
         ReadDataTo(getBuffers()[i]);
     }

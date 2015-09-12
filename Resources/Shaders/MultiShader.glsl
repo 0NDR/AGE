@@ -196,6 +196,7 @@ uniform float LightConstantAttenuations[lightMax];
 uniform float LightQuadraticAttenuations[lightMax];
 uniform int lightCount;
 uniform int time;
+uniform int normalsphere;
 uniform int Unicolors;
 uniform bool LightsOn, TextureOn, ColorOn, ZeroOn,isCube,NormalOn,grass, transparency;
 
@@ -205,20 +206,37 @@ vec4 getLightsStupid()
     vec3 n = normalize(vOutput.Normal);
     for(int i=0;i<lightCount&&i<lightMax;++i)
     {
+
         vec3 LightToVertex = vec3(LightPositions[i].xyz-vOutput.worldPosition.xyz);   //Surface to light
         float Distance = length(LightToVertex);
         LightToVertex = normalize(LightToVertex);
+        if(normalsphere==1.0)
+        {
+            n=LightToVertex;
+        }
         vec3 R = reflect(-LightToVertex,n);
         vec3 v = normalize(viewpos-vOutput.worldPosition.xyz);
-        float Diffuse =max(dot(n,normalize(LightToVertex)),0);
+        float Diffuse =abs(dot(n,LightToVertex));
         float Specular = pow(clamp(dot(R,v),0,1),Shininess);
-        float AttenuationFactor =(LightConstantAttenuations[i]+LightLinearAttenuations[i]*Distance+LightQuadraticAttenuations[i]*Distance*Distance);
-        if(AttenuationFactor==0)
-            AttenuationFactor=1.f;
-        FINALLIGHT+=LightAmbients[i];
-        FINALLIGHT+=LightDiffuses[i]*Diffuse/AttenuationFactor;
-        FINALLIGHT+=LightSpeculars[i]*Specular/AttenuationFactor;
+        float SpotlightAngle = 1.f;
+        if(LightDirections[i]!=vec3(0,0,0))//Direction is the cos of the angle between the direction of the light and the vector pointing towards the vertex
 
+        {
+                   SpotlightAngle = dot(normalize(LightDirections[i]),-LightToVertex);
+        }
+        // COLORIZE LIGHTS
+        FINALLIGHT+=LightAmbients[i];
+        if(SpotlightAngle>LightCutoffs[i]){
+
+            // CALCULATE ATTENUATION
+            float AttenuationFinal = pow(SpotlightAngle,LightSpotExponents[i]);
+            float AttenuationFactor =(LightConstantAttenuations[i]+LightLinearAttenuations[i]*Distance+LightQuadraticAttenuations[i]*Distance*Distance);
+            if(AttenuationFactor>0){
+                AttenuationFinal = AttenuationFinal/AttenuationFactor;
+            }
+            FINALLIGHT+=LightDiffuses[i]*Diffuse*AttenuationFinal;
+            FINALLIGHT+=LightSpeculars[i]*Specular*AttenuationFinal;
+        }
     }
     return vec4(FINALLIGHT.xyz,1);
 
@@ -280,7 +298,7 @@ vec4 getLights(vec2 texcoord, sampler2D norm,mat3 tbnMatrix){
         if(LightDirections[i]!=vec3(0,0,0))//Direction is the cos of the angle between the direction of the light and the vector pointing towards the vertex
 
         {
-                   SpotlightAngle = dot(normalize(LightDirections[i]),normalize(vOutput.worldPosition.xyz-LightPositions[i]));
+                   SpotlightAngle = dot(normalize(LightDirections[i]),-l);
         }
         // COLORIZE LIGHTS
         if(SpotlightAngle>LightCutoffs[i]){
@@ -317,18 +335,10 @@ void main() {
     {
         FinalColor = vec4(1,1,1,1);
     }
-    ivec2 frames = ivec2(12,6);
-    int framecount = frames.x*frames.y;
-    vec2 dist = vec2(85.0,85.0);
-    vec2 reso = dist*frames;
-    int frametime=50;
-    int frame = (time/frametime)%(framecount);
-    if(frame>(framecount-1)){frame = framecount-(frame-framecount)-1;}
-    vec2 framedisp = vec2(frame%frames.x,frame/frames.x)*dist/reso;
-    vec2 DisplacedTexCoord = (vOutput.Texcoord)*TextureScaling+framedisp;
+    vec2 DisplacedTexCoord = (vOutput.Texcoord)*TextureScaling;
     if(LightsOn)
     {
-        if(NormalOn)
+        if(!NormalOn)
         {
             FinalColor *= getLightsStupid();
         }

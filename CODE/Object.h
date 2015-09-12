@@ -48,7 +48,7 @@ class Object///Base class to all interactive objects
                                             .addConstructor<void (*)(std::string)>()
                                             .addProperty("Name", &Object::getName,&Object::setName)
                                             .addCFunction("getChildren",&Object::getChildArrayLua)
-                                            .addProperty("Parent", (Object& (Object::*)() const)&Object::getParent,&Object::setParent)
+                                            .addProperty("Parent", (Object& (Object::*)() const)&Object::getParentLua,&Object::setParent)
                                             .addCFunction("getParent",&Object::getParentLua)
                                             .addCFunction("findFirstChild",&Object::findFirstChildLua)
                                             .addFunction("isA",&Object::isType)
