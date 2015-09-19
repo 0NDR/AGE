@@ -21,15 +21,14 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-std=c++11" />
+					<Add option="-g" />
 				</Compiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-g" />
 			<Add directory="../Frameworks/Libs/mingw/SDL2/include/SDL2" />
 			<Add directory="../Frameworks/Libs/mingw/glm" />
 			<Add directory="../Frameworks/Libs/mingw/GLEW/include" />
@@ -61,10 +60,16 @@
 		<Unit filename="CODE/AudioController.h" />
 		<Unit filename="CODE/Billboard.cpp" />
 		<Unit filename="CODE/Billboard.h" />
+		<Unit filename="CODE/BonedMesh.cpp" />
+		<Unit filename="CODE/BonedMesh.h" />
+		<Unit filename="CODE/BonedModel.cpp" />
+		<Unit filename="CODE/BonedModel.h" />
 		<Unit filename="CODE/CombinedController.cpp" />
 		<Unit filename="CODE/CombinedController.h" />
 		<Unit filename="CODE/Font.cpp" />
 		<Unit filename="CODE/Font.h" />
+		<Unit filename="CODE/FrameBuffer.cpp" />
+		<Unit filename="CODE/FrameBuffer.h" />
 		<Unit filename="CODE/GLOBAL.cpp" />
 		<Unit filename="CODE/GLOBAL.h" />
 		<Unit filename="CODE/GameShader.cpp" />
@@ -94,10 +99,12 @@
 		<Unit filename="CODE/LuaBridge/detail/dump.h" />
 		<Unit filename="CODE/LuaScript.cpp" />
 		<Unit filename="CODE/LuaScript.h" />
+		<Unit filename="CODE/LuaWorld.cpp" />
+		<Unit filename="CODE/LuaWorld.h" />
 		<Unit filename="CODE/Mesh.cpp" />
 		<Unit filename="CODE/Mesh.h" />
-		<Unit filename="CODE/MultiShader.cpp" />
-		<Unit filename="CODE/MultiShader.h" />
+		<Unit filename="CODE/Model.cpp" />
+		<Unit filename="CODE/Model.h" />
 		<Unit filename="CODE/NoiseCreator.cpp" />
 		<Unit filename="CODE/NoiseCreator.h" />
 		<Unit filename="CODE/Object.cpp" />
@@ -106,10 +113,16 @@
 		<Unit filename="CODE/Object2D.h" />
 		<Unit filename="CODE/Object3D.cpp" />
 		<Unit filename="CODE/Object3D.h" />
-		<Unit filename="CODE/PhysicsObject.cpp" />
-		<Unit filename="CODE/PhysicsObject.h" />
-		<Unit filename="CODE/PhysicsUI.cpp" />
-		<Unit filename="CODE/PhysicsUI.h" />
+		<Unit filename="CODE/Particle.cpp" />
+		<Unit filename="CODE/Particle.h" />
+		<Unit filename="CODE/ParticleSystem.cpp" />
+		<Unit filename="CODE/ParticleSystem.h" />
+		<Unit filename="CODE/Physics2D.cpp" />
+		<Unit filename="CODE/Physics2D.h" />
+		<Unit filename="CODE/Physics3D.cpp" />
+		<Unit filename="CODE/Physics3D.h" />
+		<Unit filename="CODE/PhysicsWorld.cpp" />
+		<Unit filename="CODE/PhysicsWorld.h" />
 		<Unit filename="CODE/Renderable.cpp" />
 		<Unit filename="CODE/Renderable.h" />
 		<Unit filename="CODE/Resource.cpp" />
@@ -130,6 +143,7 @@
 		<Unit filename="CODE/TextureBase.h" />
 		<Unit filename="CODE/UI.cpp" />
 		<Unit filename="CODE/UI.h" />
+		<Unit filename="CODE/ValueClasses.h" />
 		<Unit filename="CODE/VideoController.cpp" />
 		<Unit filename="CODE/VideoController.h" />
 		<Unit filename="CODE/gameObject.cpp" />
@@ -267,15 +281,35 @@
 		</Unit>
 		<Unit filename="CODE/lua/lzio.h" />
 		<Unit filename="CODE/tester.cpp" />
-		<Unit filename="Resources/Scripts/LuaTest.lua" />
-		<Unit filename="Resources/Scripts/LuaTest2.lua" />
-		<Unit filename="Resources/Shaders/Billboard.vs" />
-		<Unit filename="Resources/Shaders/Bloom.fs" />
-		<Unit filename="Resources/Shaders/Godrays.fs" />
-		<Unit filename="Resources/Shaders/Shader2D.fs" />
-		<Unit filename="Resources/Shaders/Shader2D.vs" />
-		<Unit filename="Resources/Shaders/Shader3D.fs" />
-		<Unit filename="Resources/Shaders/Shader3D.vs" />
+		<Unit filename="Resources/Scripts/LuaTest.lua">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="Resources/Scripts/LuaTest2.lua">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="Resources/Shaders/Billboard.vs">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="Resources/Shaders/Bloom.fs">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="Resources/Shaders/Godrays.fs">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="Resources/Shaders/MultiShader.glsl" />
+		<Unit filename="Resources/Shaders/MultiShader2D.glsl" />
+		<Unit filename="Resources/Shaders/Shader2D.fs">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="Resources/Shaders/Shader2D.vs">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="Resources/Shaders/Shader3D.fs">
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="Resources/Shaders/Shader3D.vs">
+			<Option target="Release" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />

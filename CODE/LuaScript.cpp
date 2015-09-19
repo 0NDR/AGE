@@ -1,5 +1,4 @@
 #include "LuaScript.h"
-int runThread(void* ptr);
 int luaWait(lua_State* l){
     luabridge::LuaRef arg = luabridge::LuaRef::fromStack(l,2);
     if(arg.isNumber())
@@ -184,6 +183,15 @@ std::string LuaScript::Run(bool runmultithreaded)
     //if(multithreaded)
         //luathread = SDL_CreateThread(runThread,"LuaThread ",this);
    // else
+    lua_newtable(L);            //t={}
+    lua_pushstring(L,"this");  //t.this
+    this->push(L);             //t.this = (THIS CLASS)
+    lua_settable(L,-3);
+    lua_getglobal(L,"_G");         //get _G
+    lua_setfield(L,-2,"__index");  // t.__index = _G
+    lua_pushvalue(L,-1);           //
+    lua_setmetatable(L,-2);        //
+    lua_setupvalue(L,1,1);         // set as the _ENV
     lua_resume(getState(),NULL,0);
     std::cout<<lua_tostring(getState(),-1)<<std::endl;
     return status;
@@ -196,29 +204,6 @@ void LuaScript::Stop()
 {
     lua_yield(getState(),0);
 }
-int cont(lua_State *L)
-{
-    return 0;
-}
-
-int runThread(void* ptr)
-{
-    LuaScript *theScript = (LuaScript*)ptr;
-    luabridge::setGlobal(theScript->getState(),theScript,"this");
-
-    /*if(theScript->isFile)
-    {
-        if(luaL_dofile(theScript->getState(), theScript->source.c_str()))
-            theScript->status = lua_tostring(theScript->getState(),-1);
-    }
-    else
-    {
-        if(luaL_dostring(theScript->getState(), theScript->source.c_str()))
-            theScript->status =  lua_tostring(theScript->getState(),-1);
-    }
-    std::cout<<theScript->status;*/
-}
-
 void LuaScript::RegisterLua(lua_State *l)
 {
 

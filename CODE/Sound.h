@@ -34,6 +34,10 @@ class Sound: public Resource  ///Base for loading audio files
         }
         GLOBAL::addRegister(Sound::TypeID(),l);
         luabridge::getGlobalNamespace(l).deriveClass<Sound,Resource>(TypeID().c_str())
+                                            .addFunction("getFrequency",&Sound::getFrequency)
+                                            .addFunction("getDepthBits",&Sound::getDepthBits)
+                                            .addFunction("getChannels",&Sound::getChannels)
+                                            .addFunction("getSize",&Sound::getSize)
                                         .endClass();
     }
 };

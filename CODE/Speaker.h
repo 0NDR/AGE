@@ -45,8 +45,21 @@ class Speaker: public Object3D ///Class for managing playing audio in a 3D envio
         {
             Object3D::RegisterLua(l);
         }
+        if(!GLOBAL::isRegistered(Sound::TypeID(),l))
+        {
+            Sound::RegisterLua(l);
+        }
         GLOBAL::addRegister(Speaker::TypeID(),l);
         luabridge::getGlobalNamespace(l).deriveClass<Speaker,Object3D>(TypeID().c_str())
+                                            .addFunction("Play",&Speaker::Play)
+                                            .addFunction("Pause",&Speaker::Pause)
+                                            .addFunction("Stop",&Speaker::Stop)
+                                            .addFunction("Update",&Speaker::Update)
+                                            .addProperty("Buffer",(Sound* (Speaker::*)()const)&Speaker::getBuffer,&Speaker::setBuffer)
+                                            .addProperty("Velocity",(glm::vec3* (Speaker::*)()const)&Speaker::getVelocity,&Speaker::setVelocity)
+                                            .addProperty("RollOffFactor",(float (Speaker::*)()const)&Speaker::getRolloffFactor,&Speaker::setRolloffFactor)
+                                            .addProperty("Pitch",(float (Speaker::*)()const)&Speaker::getPitch,&Speaker::setPitch)
+                                            .addProperty("Gain",(float (Speaker::*)()const)&Speaker::getGain,&Speaker::setGain)
                                         .endClass();
     }
 };

@@ -35,20 +35,16 @@ class IntValue: public Object ///base class for every object which changes it's 
 class ObjectValue: public Object ///base class for every object which changes it's enviorment
 {
     protected:
-        Object* Value;
+        Object* Value = NULL;
     public:
     ObjectValue(){addNewType(); }///<
     ObjectValue(Object* parent): Object(parent){addNewType();}///<
     ObjectValue(std::string name): Object(name){addNewType();}///<
     ObjectValue(Object* parent, std::string name): Object(parent,name){addNewType();}///<
 
-    void setValue(Object* a)  {Value=a;}
-    int getValuecf(lua_State*l)
-    {
-        if(Value==NULL)
-            return 0;
-        return Value->push(l);
-    }
+    void setValue(Object* a);
+    Object* getValue();
+    int  getValueLua(lua_State*l);
     static std::string TypeID() {return "ObjectValue";}///<Returns Value's class name
     virtual std::string type() {return "ObjectValue";}
     virtual int push(lua_State *l)
@@ -58,13 +54,15 @@ class ObjectValue: public Object ///base class for every object which changes it
     }
     static void RegisterLua(lua_State *l)
     {
+        std::cout<<l<<std::endl;
             if(!GLOBAL::isRegistered(Object::TypeID(),l))
             {
                 Object::RegisterLua(l);
             }
             GLOBAL::addRegister(ObjectValue::TypeID(),l);
             luabridge::getGlobalNamespace(l).deriveClass<ObjectValue,Object>(TypeID().c_str())
-                                                .addProperty("Value",(Object& (ObjectValue::*)() const)&ObjectValue::getValuecf,&ObjectValue::setValue)
+                                                .addProperty("Value",&ObjectValue::getValueLua,&ObjectValue::setValue)
+                                                .addCFunction("getVal",&ObjectValue::getValueLua)
                                             .endClass();
     }
 };
