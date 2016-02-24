@@ -1,0 +1,19 @@
+digraph "glTexture::loadTexture"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="glTexture::loadTexture",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="glTexture::getFormat",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classgl_texture.html#ad049bb37a6145698806b1ed433bcca6b"];
+  Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="glTexture::getBytesPerPixel",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classgl_texture.html#a0c4c576307a7fd0dee5ed58c4cf695b8"];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="glTexture::Activate",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classgl_texture.html#a264f2530134bb74518e50084df583388"];
+  Node4 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="glTexture::getTextureUnit",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classgl_texture.html#aeb48c943a393d2d24a3da2ae2141e3d0"];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="glTexture::bindTexture",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classgl_texture.html#a4a57ea63b651bce11285385a8d70f2e8"];
+  Node6 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="glTexture::getTexture",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classgl_texture.html#a183fc773fc658f700b860249b15089aa"];
+}

@@ -1,0 +1,35 @@
+digraph "Billboard::getAbsoluteMatrix"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="Billboard::getAbsoluteMatrix",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="Shader::type",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_shader.html#ac2b899cc4bfe7a0a9ee0fe7c80654e09"];
+  Node1 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Shader::TypeID",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_shader.html#adc5f9e3e09c91e982a5abb2840f799f6"];
+  Node1 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="Object2D::getSizeRelative",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_object2_d.html#a3f49cc83834fda1b03e2d21e2c95a40d"];
+  Node1 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="Object2D::getRotation",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_object2_d.html#a0e9eaf08f3654c318397905feadfcd09"];
+  Node1 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="Object::isType",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_object.html#aacbe0d82f8b9da6a614589bfeb107207"];
+  Node1 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="UI::TypeID",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_u_i.html#ae0dcb4eaa24e10dcd91479ecfacb4a4f"];
+  Node1 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="Object::getParent",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_object.html#adf49dfc9ded6c7b527c40518bf8e7565"];
+  Node1 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="Object2D::getAbsoluteMatrix",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_object2_d.html#ab13d71a0f7d97b87cabd15f09c0b3c2a"];
+  Node9 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="Object2D::getPositionRelative",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_object2_d.html#adfb9c1e4341bcb6da8e8cc58ac8cbebf"];
+  Node9 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 -> Node11 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="Object2D::TypeID",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_object2_d.html#af0e13f6c541ce400f2e8f353c4d7c5c6"];
+  Node9 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 -> Node12 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="Window::getSize",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_window.html#afae7388a5128de3afc9d8a164b12bae6"];
+  Node1 -> Node12 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}
